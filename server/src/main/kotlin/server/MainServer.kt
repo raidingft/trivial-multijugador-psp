@@ -18,7 +18,6 @@ fun main() = runBlocking {
         
         val server = TrivialServer(configManager, recordsManager, questionBank)
         
-        // Agregar shutdown hook para cerrar el servidor correctamente
         Runtime.getRuntime().addShutdownHook(Thread {
             server.stop()
         })

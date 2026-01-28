@@ -1,47 +1,80 @@
 package org.example.trivial
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import org.jetbrains.compose.resources.painterResource
+import androidx.compose.material3.MaterialTheme
+import org.example.trivial.game.GameManager
+import org.example.trivial.model.GameConfig
+import org.example.trivial.ui.*
 
-import trivialmultijugador.composeapp.generated.resources.Res
-import trivialmultijugador.composeapp.generated.resources.compose_multiplatform
+enum class Screen {
+    MENU,
+    CONFIG,
+    GAME,
+    RESULTS
+}
 
 @Composable
-@Preview
 fun App() {
+    var currentScreen by remember { mutableStateOf(Screen.MENU) }
+    var gameConfig by remember { mutableStateOf(GameConfig()) }
+    var gameManager by remember { mutableStateOf<GameManager?>(null) }
+    
     MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
-        Column(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .safeContentPadding()
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
+        when (currentScreen) {
+            Screen.MENU -> {
+                MenuScreen(
+                    onStartSinglePlayer = {
+                        gameManager = GameManager(gameConfig)
+                        currentScreen = Screen.GAME
+                    },
+                    onShowConfig = {
+                        currentScreen = Screen.CONFIG
+                    },
+                    onExit = {
+                        // Cerrar la aplicación
+                        System.exit(0)
+                    }
+                )
             }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
+            
+            Screen.CONFIG -> {
+                ConfigScreen(
+                    currentConfig = gameConfig,
+                    onConfigChanged = { newConfig ->
+                        gameConfig = newConfig
+                    },
+                    onBack = {
+                        currentScreen = Screen.MENU
+                    }
+                )
+            }
+            
+            Screen.GAME -> {
+                gameManager?.let { manager ->
+                    GameScreen(
+                        gameManager = manager,
+                        gameMode = gameConfig.gameMode,
+                        onGameFinished = {
+                            currentScreen = Screen.RESULTS
+                        }
+                    )
+                }
+            }
+            
+            Screen.RESULTS -> {
+                gameManager?.let { manager ->
+                    ResultsScreen(
+                        playerScore = manager.playerScore,
+                        totalQuestions = manager.getTotalQuestions(),
+                        onPlayAgain = {
+                            gameManager = GameManager(gameConfig)
+                            currentScreen = Screen.GAME
+                        },
+                        onBackToMenu = {
+                            gameManager = null
+                            currentScreen = Screen.MENU
+                        }
+                    )
                 }
             }
         }
