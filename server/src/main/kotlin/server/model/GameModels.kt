@@ -54,7 +54,9 @@ data class QuestionMsg(
     val difficulty: Difficulty,
     val question: String,
     val options: List<String>,
-    val timeLimit: Int
+    val timeLimit: Int,
+    val questionNumber: Int,
+    val totalQuestions: Int
 )
 
 @Serializable
@@ -67,7 +69,7 @@ data class AnswerResultMsg(
 )
 
 @Serializable
-data class PlayerScoreData(val name: String, val score: Int, val streak: Int)
+data class PlayerScoreData(val name: String, val score: Int, val streak: Int, val correctAnswers: Int = 0)
 
 @Serializable
 data class ScoreUpdateMsg(val players: List<PlayerScoreData>)

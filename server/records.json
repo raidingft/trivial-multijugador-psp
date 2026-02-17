@@ -14,6 +14,15 @@
             "gamesLost": 1,
             "totalCorrect": 2,
             "totalAnswered": 10
+        },
+        "sal": {
+            "playerName": "sal",
+            "bestScore": 135,
+            "gamesWon": 1,
+            "gamesLost": 2,
+            "maxStreak": 2,
+            "totalCorrect": 12,
+            "totalAnswered": 30
         }
     }
 }

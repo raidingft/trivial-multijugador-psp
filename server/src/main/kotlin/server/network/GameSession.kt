@@ -37,12 +37,14 @@ class GameSession(
 
         client.send("QUESTION", json.encodeToString(
             QuestionMsg(
-                id         = q.id,
-                category   = q.category,
-                difficulty = q.difficulty,
-                question   = q.question,
-                options    = q.options,
-                timeLimit  = config.timeLimit
+                id             = q.id,
+                category       = q.category,
+                difficulty     = q.difficulty,
+                question       = q.question,
+                options        = q.options,
+                timeLimit      = config.timeLimit,
+                questionNumber = currentIndex + 1,
+                totalQuestions = questions.size
             )
         ))
     }
@@ -64,10 +66,7 @@ class GameSession(
                 Difficulty.MIXTA   -> 10
             }
 
-            // Bonus velocidad < 5 s
             if (elapsed < 5_000) points += 5
-
-            // Racha x2 a partir de 5
             if (streak >= 5) points *= 2
 
             score += points
@@ -87,7 +86,7 @@ class GameSession(
 
         client.send("SCORE_UPDATE", json.encodeToString(
             ScoreUpdateMsg(listOf(
-                PlayerScoreData(client.playerName, score, streak)
+                PlayerScoreData(client.playerName, score, streak, correct)
             ))
         ))
 
@@ -112,7 +111,7 @@ class GameSession(
         client.send("GAME_END", json.encodeToString(
             GameEndMsg(
                 winner         = if (won) client.playerName else null,
-                finalScores    = listOf(PlayerScoreData(client.playerName, score, streak)),
+                finalScores    = listOf(PlayerScoreData(client.playerName, score, streak, correct)),
                 correctAnswers = mapOf(client.playerName to correct)
             )
         ))

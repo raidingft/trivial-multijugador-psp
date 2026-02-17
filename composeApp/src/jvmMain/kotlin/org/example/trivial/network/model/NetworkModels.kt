@@ -29,9 +29,7 @@ data class AnswerMsg(
 data class WelcomeData(val message: String, val playerId: String)
 
 @Serializable
-data class RecordsData(
-    val players: Map<String, PlayerRecordData> = emptyMap()
-)
+data class RecordsData(val players: Map<String, PlayerRecordData> = emptyMap())
 
 @Serializable
 data class PlayerRecordData(
@@ -51,7 +49,9 @@ data class QuestionData(
     val difficulty: String,
     val question: String,
     val options: List<String>,
-    val timeLimit: Int
+    val timeLimit: Int,
+    val questionNumber: Int = 1,
+    val totalQuestions: Int = 1
 )
 
 @Serializable
@@ -67,7 +67,8 @@ data class AnswerResultData(
 data class PlayerScoreData(
     val name: String,
     val score: Int,
-    val streak: Int
+    val streak: Int,
+    val correctAnswers: Int = 0
 )
 
 @Serializable
@@ -83,7 +84,7 @@ data class GameEndData(
 @Serializable
 data class ErrorData(val message: String)
 
-// ── Eventos que emite el NetworkClient a la UI ─────────────────────────────
+// ── Eventos ────────────────────────────────────────────────────────────────
 
 sealed class ServerEvent {
     data class Welcome(val data: WelcomeData)           : ServerEvent()
