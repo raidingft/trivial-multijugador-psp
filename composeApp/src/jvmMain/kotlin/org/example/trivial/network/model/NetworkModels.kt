@@ -1,0 +1,96 @@
+package org.example.trivial.network.model
+
+import kotlinx.serialization.Serializable
+
+// ── Mensajes que ENVÍA el cliente ──────────────────────────────────────────
+
+@Serializable
+data class ConnectMsg(val playerName: String)
+
+@Serializable
+data class CreateTriviaMsg(
+    val mode: String,
+    val questions: Int,
+    val categories: List<String>,
+    val difficulty: String,
+    val timeLimit: Int
+)
+
+@Serializable
+data class AnswerMsg(
+    val questionId: Int,
+    val selectedOption: Int,
+    val timeElapsed: Long
+)
+
+// ── Mensajes que RECIBE el cliente ─────────────────────────────────────────
+
+@Serializable
+data class WelcomeData(val message: String, val playerId: String)
+
+@Serializable
+data class RecordsData(
+    val players: Map<String, PlayerRecordData> = emptyMap()
+)
+
+@Serializable
+data class PlayerRecordData(
+    val playerName: String,
+    val bestScore: Int = 0,
+    val gamesWon: Int = 0,
+    val gamesLost: Int = 0,
+    val maxStreak: Int = 0,
+    val totalCorrect: Int = 0,
+    val totalAnswered: Int = 0
+)
+
+@Serializable
+data class QuestionData(
+    val id: Int,
+    val category: String,
+    val difficulty: String,
+    val question: String,
+    val options: List<String>,
+    val timeLimit: Int
+)
+
+@Serializable
+data class AnswerResultData(
+    val questionId: Int,
+    val correct: Boolean,
+    val correctAnswer: Int,
+    val points: Int,
+    val explanation: String
+)
+
+@Serializable
+data class PlayerScoreData(
+    val name: String,
+    val score: Int,
+    val streak: Int
+)
+
+@Serializable
+data class ScoreUpdateData(val players: List<PlayerScoreData>)
+
+@Serializable
+data class GameEndData(
+    val winner: String?,
+    val finalScores: List<PlayerScoreData>,
+    val correctAnswers: Map<String, Int>
+)
+
+@Serializable
+data class ErrorData(val message: String)
+
+// ── Eventos que emite el NetworkClient a la UI ─────────────────────────────
+
+sealed class ServerEvent {
+    data class Welcome(val data: WelcomeData)           : ServerEvent()
+    data class Records(val data: RecordsData)           : ServerEvent()
+    data class Question(val data: QuestionData)         : ServerEvent()
+    data class AnswerResult(val data: AnswerResultData) : ServerEvent()
+    data class ScoreUpdate(val data: ScoreUpdateData)   : ServerEvent()
+    data class GameEnd(val data: GameEndData)           : ServerEvent()
+    data class Error(val data: ErrorData)               : ServerEvent()
+}

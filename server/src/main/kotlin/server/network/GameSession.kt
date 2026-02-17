@@ -22,14 +22,10 @@ class GameSession(
     private var correct = 0
     private var questionStartTime = 0L
 
-    // ── Inicio ─────────────────────────────────────────────────────────────
-
     suspend fun start() {
         println("🎮 Partida iniciada [$gameId] para ${client.playerName} — ${config.mode}, ${questions.size} preguntas")
         sendNextQuestion()
     }
-
-    // ── Enviar pregunta ────────────────────────────────────────────────────
 
     private fun sendNextQuestion() {
         if (currentIndex >= questions.size) {
@@ -51,25 +47,21 @@ class GameSession(
         ))
     }
 
-    // ── Procesar respuesta ─────────────────────────────────────────────────
-
     suspend fun processAnswer(msg: AnswerMsg) {
         val q = questions.find { it.id == msg.questionId } ?: return
         val elapsed = System.currentTimeMillis() - questionStartTime
-
         val isCorrect = msg.selectedOption == q.correctAnswer
 
-        // Calcular puntos
         var points = 0
         if (isCorrect) {
             correct++
             streak++
 
             points = when (q.difficulty) {
-                Difficulty.EASY   -> 10
-                Difficulty.MEDIUM -> 15   // x1.5
-                Difficulty.HARD   -> 20   // x2
-                Difficulty.MIXED  -> 10
+                Difficulty.FACIL   -> 10
+                Difficulty.MEDIA   -> 15
+                Difficulty.DIFICIL -> 20
+                Difficulty.MIXTA   -> 10
             }
 
             // Bonus velocidad < 5 s
@@ -83,7 +75,6 @@ class GameSession(
             streak = 0
         }
 
-        // Resultado
         client.send("ANSWER_RESULT", json.encodeToString(
             AnswerResultMsg(
                 questionId    = q.id,
@@ -94,7 +85,6 @@ class GameSession(
             )
         ))
 
-        // Score update (partida en solitario: solo el jugador)
         client.send("SCORE_UPDATE", json.encodeToString(
             ScoreUpdateMsg(listOf(
                 PlayerScoreData(client.playerName, score, streak)
@@ -102,17 +92,13 @@ class GameSession(
         ))
 
         currentIndex++
-
-        // Pequeña pausa antes de la siguiente pregunta
         delay(500)
         sendNextQuestion()
     }
 
-    // ── Fin de partida ─────────────────────────────────────────────────────
-
     private fun endGame() {
         val totalAnswered = questions.size
-        val won = correct > totalAnswered / 2   // gana si acierta más de la mitad
+        val won = correct > totalAnswered / 2
 
         records.updateAfterGame(
             playerName = client.playerName,
@@ -125,8 +111,8 @@ class GameSession(
 
         client.send("GAME_END", json.encodeToString(
             GameEndMsg(
-                winner      = if (won) client.playerName else null,
-                finalScores = listOf(PlayerScoreData(client.playerName, score, streak)),
+                winner         = if (won) client.playerName else null,
+                finalScores    = listOf(PlayerScoreData(client.playerName, score, streak)),
                 correctAnswers = mapOf(client.playerName to correct)
             )
         ))

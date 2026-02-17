@@ -1,1 +1,19 @@
-{}
+{
+    "players": {
+        "Sazf": {
+            "playerName": "Sazf",
+            "bestScore": 95,
+            "gamesLost": 2,
+            "maxStreak": 1,
+            "totalCorrect": 9,
+            "totalAnswered": 20
+        },
+        "EAFEA": {
+            "playerName": "EAFEA",
+            "bestScore": 40,
+            "gamesLost": 1,
+            "totalCorrect": 2,
+            "totalAnswered": 10
+        }
+    }
+}

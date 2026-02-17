@@ -2,20 +2,17 @@ package server.model
 
 import kotlinx.serialization.Serializable
 
-// ── Enums ──────────────────────────────────────────────────────────────────
-
 @Serializable
 enum class Category {
-    HISTORY, SCIENCE, SPORTS, GEOGRAPHY, ART_LITERATURE, ENTERTAINMENT, TECHNOLOGY, GENERAL
+    HISTORIA, CIENCIA_NATURALEZA, DEPORTES, GEOGRAFIA,
+    ARTE_LITERATURA, ENTRETENIMIENTO, TECNOLOGIA, CONOCIMIENTO_GENERAL
 }
 
 @Serializable
-enum class Difficulty { EASY, MEDIUM, HARD, MIXED }
+enum class Difficulty { FACIL, MEDIA, DIFICIL, MIXTA }
 
 @Serializable
 enum class GameMode { PVP, PVE }
-
-// ── Pregunta ───────────────────────────────────────────────────────────────
 
 @Serializable
 data class TriviaQuestion(
@@ -28,12 +25,12 @@ data class TriviaQuestion(
     val explanation: String = ""
 )
 
-// ── Mensajes CLIENTE → SERVIDOR ────────────────────────────────────────────
-// Formato: "TIPO:{ json }"
+@Serializable
+data class QuestionsFile(val questions: List<TriviaQuestion>)
 
 @Serializable
 data class CreateTriviaMsg(
-    val mode: GameMode,
+    val mode: String,
     val questions: Int,
     val categories: List<Category>,
     val difficulty: Difficulty,
@@ -48,11 +45,7 @@ data class AnswerMsg(
 )
 
 @Serializable
-data class ConnectMsg(
-    val playerName: String
-)
-
-// ── Mensajes SERVIDOR → CLIENTE ────────────────────────────────────────────
+data class ConnectMsg(val playerName: String)
 
 @Serializable
 data class QuestionMsg(
@@ -74,16 +67,10 @@ data class AnswerResultMsg(
 )
 
 @Serializable
-data class PlayerScoreData(
-    val name: String,
-    val score: Int,
-    val streak: Int
-)
+data class PlayerScoreData(val name: String, val score: Int, val streak: Int)
 
 @Serializable
-data class ScoreUpdateMsg(
-    val players: List<PlayerScoreData>
-)
+data class ScoreUpdateMsg(val players: List<PlayerScoreData>)
 
 @Serializable
 data class GameEndMsg(
@@ -93,17 +80,10 @@ data class GameEndMsg(
 )
 
 @Serializable
-data class WelcomeMsg(
-    val message: String,
-    val playerId: String
-)
+data class WelcomeMsg(val message: String, val playerId: String)
 
 @Serializable
-data class ErrorMsg(
-    val message: String
-)
-
-// ── Records ────────────────────────────────────────────────────────────────
+data class ErrorMsg(val message: String)
 
 @Serializable
 data class PlayerRecord(
@@ -117,6 +97,4 @@ data class PlayerRecord(
 )
 
 @Serializable
-data class RecordsFile(
-    val players: MutableMap<String, PlayerRecord> = mutableMapOf()
-)
+data class RecordsFile(val players: MutableMap<String, PlayerRecord> = mutableMapOf())
