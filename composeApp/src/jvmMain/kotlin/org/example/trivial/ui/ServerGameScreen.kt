@@ -19,8 +19,8 @@ import org.example.trivial.model.GameMode
 import org.example.trivial.network.model.AnswerResultData
 import org.example.trivial.network.model.PlayerScoreData
 import org.example.trivial.network.model.QuestionData
+import org.example.trivial.sound.SoundPlayer
 
-// Iconos por categoría
 fun categoryIcon(category: String) = when (category) {
     "HISTORIA"             -> "🏛️"
     "CIENCIA_NATURALEZA"   -> "🔬"
@@ -59,6 +59,22 @@ fun ServerGameScreen(
     var timeLeft       by remember(question) { mutableStateOf(30) }
     val showResult = answerResult != null
     val myScore = scores.find { it.name == playerName }
+
+    // Reproducir sonido cuando llega el resultado
+    LaunchedEffect(answerResult) {
+        answerResult?.let {
+            if (it.correct) {
+                SoundPlayer.playCorrect()
+                val streak = myScore?.streak ?: 0
+                if (streak >= 5) {
+                    delay(200)
+                    SoundPlayer.playStreak()
+                }
+            } else {
+                SoundPlayer.playIncorrect()
+            }
+        }
+    }
 
     // Animación de racha
     val streakAnimating = remember { mutableStateOf(false) }
@@ -121,7 +137,6 @@ fun ServerGameScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Puntos
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text("Puntos", fontSize = 12.sp,
                                 color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f))
@@ -132,7 +147,6 @@ fun ServerGameScreen(
                             )
                         }
 
-                        // Racha con animación
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier.scale(streakScale)
@@ -148,7 +162,6 @@ fun ServerGameScreen(
                             )
                         }
 
-                        // Correctas
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text("Correctas", fontSize = 12.sp,
                                 color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f))
@@ -159,7 +172,6 @@ fun ServerGameScreen(
                             )
                         }
 
-                        // Timer
                         if (gameMode == GameMode.CONTRARRELOJ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text("Tiempo", fontSize = 12.sp,
@@ -333,7 +345,6 @@ fun ServerGameScreen(
                                         textAlign = TextAlign.Center
                                     )
                                 }
-                                // Animación racha 5+
                                 val streak = myScore?.streak ?: 0
                                 if (streak >= 5) {
                                     Spacer(modifier = Modifier.height(4.dp))

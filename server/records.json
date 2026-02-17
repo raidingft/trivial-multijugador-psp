@@ -23,6 +23,14 @@
             "maxStreak": 2,
             "totalCorrect": 12,
             "totalAnswered": 30
+        },
+        "w": {
+            "playerName": "w",
+            "bestScore": 60,
+            "gamesLost": 1,
+            "maxStreak": 1,
+            "totalCorrect": 3,
+            "totalAnswered": 10
         }
     }
 }
