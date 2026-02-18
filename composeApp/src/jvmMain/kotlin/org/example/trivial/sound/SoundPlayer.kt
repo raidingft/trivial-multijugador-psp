@@ -1,12 +1,42 @@
 package org.example.trivial.sound
 
+import javazoom.jl.player.Player
+import java.io.BufferedInputStream
 import javax.sound.sampled.AudioFormat
 import javax.sound.sampled.AudioSystem
 import javax.sound.sampled.SourceDataLine
 
 object SoundPlayer {
-
-    private fun playTone(frequency: Double, duration: Int, volume: Double = 0.5) {
+    
+    /**
+     * Reproduce un archivo MP3 como efecto de sonido
+     */
+    private fun playSound(resourcePath: String) {
+        Thread {
+            try {
+                val inputStream = this::class.java.getResourceAsStream(resourcePath)
+                if (inputStream != null) {
+                    val buffered = BufferedInputStream(inputStream)
+                    val player = Player(buffered)
+                    player.play()
+                    player.close()
+                } else {
+                    // Si no existe el archivo MP3, usar tono de respaldo
+                    when {
+                        resourcePath.contains("correct") -> playToneFallback(800.0, 100)
+                        resourcePath.contains("incorrect") -> playToneFallback(200.0, 300)
+                    }
+                }
+            } catch (e: Exception) {
+                // Ignorar errores de audio
+            }
+        }.start()
+    }
+    
+    /**
+     * Tono de respaldo si no hay archivos MP3
+     */
+    private fun playToneFallback(frequency: Double, duration: Int) {
         try {
             val sampleRate = 44100f
             val format = AudioFormat(sampleRate, 16, 1, true, false)
@@ -19,7 +49,7 @@ object SoundPlayer {
 
             for (i in 0 until samples) {
                 val angle = 2.0 * Math.PI * i * frequency / sampleRate
-                val sample = (Math.sin(angle) * volume * Short.MAX_VALUE).toInt().toShort()
+                val sample = (Math.sin(angle) * 0.3 * Short.MAX_VALUE).toInt().toShort()
                 buffer[i * 2] = (sample.toInt() and 0xFF).toByte()
                 buffer[i * 2 + 1] = ((sample.toInt() shr 8) and 0xFF).toByte()
             }
@@ -28,31 +58,16 @@ object SoundPlayer {
             line.drain()
             line.close()
         } catch (e: Exception) {
-            // Silenciosamente ignorar errores de audio
+            // Ignorar errores
         }
     }
-
+    
+    // Sonidos del juego
     fun playCorrect() {
-        Thread {
-            playTone(800.0, 100, 0.3)  // Do alto
-            Thread.sleep(50)
-            playTone(1000.0, 150, 0.3) // Mi más alto
-        }.start()
+        playSound("/sounds/correct.mp3")
     }
-
+    
     fun playIncorrect() {
-        Thread {
-            playTone(200.0, 300, 0.4)  // Sonido grave y corto
-        }.start()
-    }
-
-    fun playStreak() {
-        Thread {
-            playTone(600.0, 80, 0.25)
-            Thread.sleep(40)
-            playTone(800.0, 80, 0.25)
-            Thread.sleep(40)
-            playTone(1000.0, 120, 0.25)
-        }.start()
+        playSound("/sounds/incorrect.mp3")
     }
 }

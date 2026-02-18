@@ -65,11 +65,6 @@ fun ServerGameScreen(
         answerResult?.let {
             if (it.correct) {
                 SoundPlayer.playCorrect()
-                val streak = myScore?.streak ?: 0
-                if (streak >= 5) {
-                    delay(200)
-                    SoundPlayer.playStreak()
-                }
             } else {
                 SoundPlayer.playIncorrect()
             }
@@ -124,7 +119,6 @@ fun ServerGameScreen(
                 modifier = Modifier.fillMaxSize().padding(20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
                 // ── Panel de puntuación ────────────────────────────────────
                 Card(
                     modifier = Modifier.fillMaxWidth(),

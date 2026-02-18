@@ -6,6 +6,7 @@ import kotlinx.coroutines.launch
 import org.example.trivial.network.NetworkClient
 import org.example.trivial.network.model.*
 import org.example.trivial.model.GameConfig
+import org.example.trivial.sound.SoundPlayer
 import org.example.trivial.ui.*
 
 enum class Screen {

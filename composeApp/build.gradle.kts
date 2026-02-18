@@ -30,6 +30,8 @@ kotlin {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutinesSwing)
             implementation(libs.kotlinx.coroutines.core)
+            // Librería para reproducir MP3
+            implementation("com.googlecode.soundlibs:jlayer:1.0.1.4")
         }
     }
 }
