@@ -149,7 +149,7 @@ class PvPGameSession(
         client2.send("SCORE_UPDATE", json.encodeToString(scoreUpdate))
         
         currentIndex++
-        delay(500)
+        delay(3000)  // 3 segundos para leer el resultado
         sendNextQuestion()
     }
 

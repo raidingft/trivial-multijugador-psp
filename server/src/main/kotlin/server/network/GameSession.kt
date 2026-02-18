@@ -115,7 +115,7 @@ class GameSession(
         ))
 
         currentIndex++
-        delay(500)
+        delay(3000)  // 3 segundos para leer el resultado
         sendNextQuestion()
     }
 
