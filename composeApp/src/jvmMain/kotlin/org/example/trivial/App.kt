@@ -85,7 +85,10 @@ fun App() {
                     scores = event.data.players
                 }
                 is ServerEvent.GameEnd -> {
-                    gameEndData   = event.data
+                    gameEndData        = event.data
+                    playAgainRequest   = null
+                    playAgainRejected  = null
+                    opponentWentToMenu = null
                     currentScreen = Screen.RESULTS
                     networkClient.requestRecords()
                 }
@@ -163,11 +166,15 @@ fun App() {
                         currentScreen = Screen.GAME_SERVER
                     },
                     onStartPvP = {
-                        currentQuestion = null
-                        answerResult    = null
-                        scores          = emptyList()
-                        gameEndData     = null
-                        opponentName    = null
+                        currentQuestion    = null
+                        answerResult       = null
+                        scores             = emptyList()
+                        gameEndData        = null
+                        opponentName       = null
+                        playAgainRequest   = null
+                        playAgainRejected  = null
+                        opponentWentToMenu = null
+                        disconnectedMessage = null
 
                         networkClient.startPvPGame(
                             questions  = gameConfig.numberOfQuestions,

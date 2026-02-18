@@ -19,10 +19,27 @@
             "playerName": "sal",
             "bestScore": 135,
             "gamesWon": 1,
-            "gamesLost": 2,
+            "gamesLost": 3,
             "maxStreak": 2,
-            "totalCorrect": 12,
-            "totalAnswered": 30
+            "totalCorrect": 13,
+            "totalAnswered": 33,
+            "categoryStats": {
+                "CONOCIMIENTO_GENERAL": {
+                    "correct": 1,
+                    "total": 1
+                },
+                "CIENCIA_NATURALEZA": {
+                    "total": 2
+                }
+            },
+            "difficultyStats": {
+                "MEDIA": {
+                    "correct": 1,
+                    "total": 3
+                }
+            },
+            "totalResponseTime": 971,
+            "lastPlayed": 1771432638914
         },
         "w": {
             "playerName": "w",

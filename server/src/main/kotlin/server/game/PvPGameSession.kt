@@ -150,24 +150,14 @@ class PvPGameSession(
         var points1 = 0
         if (isCorrect1) {
             correctCount1++; streak1++
-            points1 = when (q.difficulty) {
-                Difficulty.FACIL -> 10; Difficulty.MEDIA -> 15
-                Difficulty.DIFICIL -> 20; Difficulty.MIXTA -> 10
-            }
-            if (time1 < 5_000) points1 += 5
-            if (streak1 >= 5) points1 *= 2
+            points1 = calcPoints(q.difficulty, streak1, time1)
             score1 += points1
         } else if (player1Answered) streak1 = 0
-        
+
         var points2 = 0
         if (isCorrect2) {
             correctCount2++; streak2++
-            points2 = when (q.difficulty) {
-                Difficulty.FACIL -> 10; Difficulty.MEDIA -> 15
-                Difficulty.DIFICIL -> 20; Difficulty.MIXTA -> 10
-            }
-            if (time2 < 5_000) points2 += 5
-            if (streak2 >= 5) points2 *= 2
+            points2 = calcPoints(q.difficulty, streak2, time2)
             score2 += points2
         } else if (player2Answered) streak2 = 0
         
@@ -199,17 +189,8 @@ class PvPGameSession(
         var points = 0
         if (isCorrect) {
             if (isPlayer1) { correctCount1++; streak1++ } else { correctCount2++; streak2++ }
-            
-            points = when (q.difficulty) {
-                Difficulty.FACIL -> 10
-                Difficulty.MEDIA -> 15
-                Difficulty.DIFICIL -> 20
-                Difficulty.MIXTA -> 10
-            }
-            
-            if (time < 5_000) points += 5
-            if ((if (isPlayer1) streak1 else streak2) >= 5) points *= 2
-            
+            val streak = if (isPlayer1) streak1 else streak2
+            points = calcPoints(q.difficulty, streak, time)
             if (isPlayer1) score1 += points else score2 += points
         } else {
             if (isPlayer1) streak1 = 0 else streak2 = 0
@@ -243,33 +224,15 @@ class PvPGameSession(
         
         var points1 = 0
         if (isCorrect1) {
-            correctCount1++
-            streak1++
-            points1 = when (q.difficulty) {
-                Difficulty.FACIL -> 10
-                Difficulty.MEDIA -> 15
-                Difficulty.DIFICIL -> 20
-                Difficulty.MIXTA -> 10
-            }
-            if (time1 < 5_000) points1 += 5
-            if (streak1 >= 5) points1 *= 2
-            if (isCorrect2 && time1 < time2) points1 += 5
+            correctCount1++; streak1++
+            points1 = calcPoints(q.difficulty, streak1, time1)
             score1 += points1
         } else streak1 = 0
-        
+
         var points2 = 0
         if (isCorrect2) {
-            correctCount2++
-            streak2++
-            points2 = when (q.difficulty) {
-                Difficulty.FACIL -> 10
-                Difficulty.MEDIA -> 15
-                Difficulty.DIFICIL -> 20
-                Difficulty.MIXTA -> 10
-            }
-            if (time2 < 5_000) points2 += 5
-            if (streak2 >= 5) points2 *= 2
-            if (isCorrect1 && time2 < time1) points2 += 5
+            correctCount2++; streak2++
+            points2 = calcPoints(q.difficulty, streak2, time2)
             score2 += points2
         } else streak2 = 0
         
@@ -294,6 +257,19 @@ class PvPGameSession(
     }
 
     // Estado para "jugar de nuevo"
+    /** Calcula puntos según las reglas: base por dificultad, x2 si racha>=5, +5 fijo por velocidad */
+    private fun calcPoints(difficulty: Difficulty, streak: Int, timeElapsed: Long): Int {
+        val base = when (difficulty) {
+            Difficulty.FACIL   -> 10
+            Difficulty.MEDIA   -> 15
+            Difficulty.DIFICIL -> 20
+            Difficulty.MIXTA   -> 10
+        }
+        val withStreak = if (streak >= 5) base * 2 else base
+        val withSpeed  = if (timeElapsed < 5_000) withStreak + 5 else withStreak
+        return withSpeed
+    }
+
     private var player1WantsRematch = false
     private var player2WantsRematch = false
 

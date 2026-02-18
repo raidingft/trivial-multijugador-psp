@@ -83,15 +83,17 @@ class GameSession(
             correct++
             streak++
 
-            points = when (q.difficulty) {
+            // Base según dificultad: x1 FACIL/MIXTA, x1.5 MEDIA, x2 DIFICIL
+            val base = when (q.difficulty) {
                 Difficulty.FACIL   -> 10
                 Difficulty.MEDIA   -> 15
                 Difficulty.DIFICIL -> 20
                 Difficulty.MIXTA   -> 10
             }
-
-            if (elapsed < 5_000) points += 5
-            if (streak >= 5) points *= 2
+            // Racha x2 sobre la puntuación base
+            points = if (streak >= 5) base * 2 else base
+            // Bonus velocidad: fijo +5, no se multiplica por racha
+            if (msg.timeElapsed < 5_000) points += 5
 
             score += points
         } else {
