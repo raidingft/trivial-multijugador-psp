@@ -91,6 +91,15 @@ data class GameEndMsg(
 data class WelcomeMsg(val message: String, val playerId: String)
 
 @Serializable
+data class PlayAgainRequestMsg(val playerName: String)
+
+@Serializable
+data class PlayAgainResponseMsg(val accepted: Boolean)
+
+@Serializable
+data class OpponentActionMsg(val playerName: String, val action: String)
+
+@Serializable
 data class ErrorMsg(val message: String)
 
 @Serializable

@@ -293,6 +293,46 @@ class PvPGameSession(
         sendNextQuestion()
     }
 
+    // Estado para "jugar de nuevo"
+    private var player1WantsRematch = false
+    private var player2WantsRematch = false
+
+    fun requestPlayAgain(requester: ClientHandler) {
+        val rival = if (requester.id == client1.id) client2 else client1
+        rival.send("PLAY_AGAIN_REQUEST", json.encodeToString(
+            PlayAgainRequestMsg(requester.playerName)
+        ))
+        if (requester.id == client1.id) player1WantsRematch = true
+        else player2WantsRematch = true
+    }
+
+    fun respondPlayAgain(responder: ClientHandler, accepted: Boolean) {
+        val requester = if (responder.id == client1.id) client2 else client1
+        if (accepted) {
+            // Ambos quieren jugar — lanzar nueva sesión con misma config
+            requester.send("PLAY_AGAIN_ACCEPTED", "{}")
+            responder.send("PLAY_AGAIN_ACCEPTED", "{}")
+            MatchmakingManager.removeMatch(gameId)
+            // Crear nueva sesión directamente
+            val newSession = PvPGameSession(client1, client2, config)
+            kotlinx.coroutines.GlobalScope.launch { newSession.start() }
+        } else {
+            requester.send("PLAY_AGAIN_REJECTED", json.encodeToString(
+                OpponentActionMsg(responder.playerName, "rejected")
+            ))
+            player1WantsRematch = false
+            player2WantsRematch = false
+        }
+    }
+
+    fun notifyOpponentWentToMenu(client: ClientHandler) {
+        val rival = if (client.id == client1.id) client2 else client1
+        rival.send("OPPONENT_WENT_TO_MENU", json.encodeToString(
+            OpponentActionMsg(client.playerName, "menu")
+        ))
+        MatchmakingManager.removeMatch(gameId)
+    }
+
     fun notifyOpponentDisconnected(disconnectedClient: ClientHandler) {
         val rival = if (disconnectedClient.id == client1.id) client2 else client1
         rival.send("OPPONENT_DISCONNECTED", json.encodeToString(

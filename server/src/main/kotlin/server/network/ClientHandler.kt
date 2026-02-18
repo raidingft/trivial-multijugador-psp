@@ -105,6 +105,21 @@ class ClientHandler(
                 }
             }
 
+            "PLAY_AGAIN_REQUEST" -> {
+                pvpSession?.requestPlayAgain(this)
+            }
+
+            "PLAY_AGAIN_RESPONSE" -> {
+                val msg = json.decodeFromString<PlayAgainResponseMsg>(payload)
+                pvpSession?.respondPlayAgain(this, msg.accepted)
+            }
+
+            "WENT_TO_MENU" -> {
+                pvpSession?.notifyOpponentWentToMenu(this)
+                pvpSession = null
+                isPvPMode = false
+            }
+
             "CANCEL_MATCHMAKING" -> {
                 MatchmakingManager.cancelWaiting(this)
                 isPvPMode = false

@@ -30,7 +30,11 @@ fun App() {
     var records          by remember { mutableStateOf<RecordsData?>(null) }
     var questionStart    by remember { mutableStateOf(0L) }
     var opponentName     by remember { mutableStateOf<String?>(null) }
-    var disconnectedMessage by remember { mutableStateOf<String?>(null) }
+    var disconnectedMessage   by remember { mutableStateOf<String?>(null) }
+    var playAgainRequest      by remember { mutableStateOf<String?>(null) }  // nombre del rival que quiere revancha
+    var playAgainRejected     by remember { mutableStateOf<String?>(null) }  // nombre del rival que rechazó
+    var opponentWentToMenu    by remember { mutableStateOf<String?>(null) }  // nombre del rival que fue al menú
+    var isPvPGame             by remember { mutableStateOf(false) }
 
     LaunchedEffect(networkClient) {
         networkClient.messages.collect { event ->
@@ -47,6 +51,7 @@ fun App() {
                     opponentName = null
                 }
                 is ServerEvent.PvPMatched -> {
+                    isPvPGame = true
                     opponentName = event.opponentName
                     // Actualizar el modo de juego si viene del servidor (es el del host)
                     event.gameMode?.let { mode ->
@@ -89,7 +94,28 @@ fun App() {
                 }
                 is ServerEvent.OpponentDisconnected -> {
                     disconnectedMessage = "${event.playerName} se ha desconectado"
+                    isPvPGame = false
                     currentScreen = Screen.MENU
+                }
+                is ServerEvent.PlayAgainRequest -> {
+                    playAgainRequest = event.playerName
+                }
+                is ServerEvent.PlayAgainAccepted -> {
+                    // Reiniciar estado y empezar nueva partida
+                    currentQuestion = null
+                    answerResult    = null
+                    scores          = emptyList()
+                    gameEndData     = null
+                    playAgainRequest = null
+                    playAgainRejected = null
+                    opponentWentToMenu = null
+                    currentScreen = Screen.WAITING_MATCH
+                }
+                is ServerEvent.PlayAgainRejected -> {
+                    playAgainRejected = "${event.playerName} ha rechazado jugar de nuevo"
+                }
+                is ServerEvent.OpponentWentToMenu -> {
+                    opponentWentToMenu = "${event.playerName} ha vuelto al menú"
                 }
             }
         }
@@ -126,6 +152,7 @@ fun App() {
                         answerResult    = null
                         scores          = emptyList()
                         gameEndData     = null
+                        isPvPGame       = false
 
                         networkClient.startGame(
                             questions  = gameConfig.numberOfQuestions,
@@ -200,22 +227,44 @@ fun App() {
 
             Screen.RESULTS -> {
                 ServerResultsScreen(
-                    gameEndData   = gameEndData,
-                    playerName    = playerName,
-                    onPlayAgain   = {
-                        currentQuestion = null
-                        answerResult    = null
-                        scores          = emptyList()
-                        gameEndData     = null
-                        networkClient.startGame(
-                            questions  = gameConfig.numberOfQuestions,
-                            categories = gameConfig.categories.map { it.name },
-                            difficulty = gameConfig.difficulty.name,
-                            timeLimit  = gameConfig.timeLimit
-                        )
-                        currentScreen = Screen.GAME_SERVER
+                    gameEndData        = gameEndData,
+                    playerName         = playerName,
+                    isPvP              = isPvPGame,
+                    playAgainRequest   = playAgainRequest,
+                    playAgainRejected  = playAgainRejected,
+                    opponentWentToMenu = opponentWentToMenu,
+                    onPlayAgain = {
+                        if (isPvPGame) {
+                            networkClient.requestPlayAgain()
+                        } else {
+                            currentQuestion = null
+                            answerResult    = null
+                            scores          = emptyList()
+                            gameEndData     = null
+                            networkClient.startGame(
+                                questions  = gameConfig.numberOfQuestions,
+                                categories = gameConfig.categories.map { it.name },
+                                difficulty = gameConfig.difficulty.name,
+                                timeLimit  = gameConfig.timeLimit
+                            )
+                            currentScreen = Screen.GAME_SERVER
+                        }
                     },
-                    onBackToMenu  = { currentScreen = Screen.MENU }
+                    onAcceptPlayAgain = {
+                        networkClient.respondPlayAgain(true)
+                    },
+                    onRejectPlayAgain = {
+                        networkClient.respondPlayAgain(false)
+                        playAgainRequest = null
+                    },
+                    onBackToMenu = {
+                        if (isPvPGame) networkClient.notifyWentToMenu()
+                        isPvPGame = false
+                        playAgainRequest = null
+                        playAgainRejected = null
+                        opponentWentToMenu = null
+                        currentScreen = Screen.MENU
+                    }
                 )
             }
         }

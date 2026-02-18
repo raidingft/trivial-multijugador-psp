@@ -58,6 +58,8 @@ fun ServerGameScreen(
     var selectedOption by remember(question) { mutableStateOf<Int?>(null) }
     var timeLeft       by remember(question) { mutableStateOf(30) }
     val showResult = answerResult != null
+    // Parar el timer cuando llegue resultado (cubre el caso del rival en contrarreloj)
+    val timerRunning = !showResult && selectedOption == null
     val myScore = scores.find { it.name == playerName }
 
     // Reproducir sonido cuando llega el resultado
@@ -88,14 +90,14 @@ fun ServerGameScreen(
     }
 
     // Timer
-    LaunchedEffect(question) {
+    LaunchedEffect(question, timerRunning) {
         if (question != null && gameMode == GameMode.CONTRARRELOJ) {
-            timeLeft = question.timeLimit
-            while (timeLeft > 0 && !showResult && selectedOption == null) {
+            if (!timerRunning) return@LaunchedEffect
+            while (timeLeft > 0 && timerRunning) {
                 delay(1000)
                 timeLeft--
             }
-            if (!showResult && selectedOption == null) {
+            if (selectedOption == null && !showResult) {
                 selectedOption = -1
                 onAnswer(question.id, -1)
             }

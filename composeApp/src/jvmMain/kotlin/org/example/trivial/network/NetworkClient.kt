@@ -141,6 +141,19 @@ actual class NetworkClient {
                     val data = json.decodeFromString<Map<String, String>>(payload)
                     ServerEvent.OpponentDisconnected(data["playerName"] ?: "Tu rival")
                 }
+                "PLAY_AGAIN_REQUEST"       -> {
+                    val data = json.decodeFromString<Map<String, String>>(payload)
+                    ServerEvent.PlayAgainRequest(data["playerName"] ?: "Tu rival")
+                }
+                "PLAY_AGAIN_ACCEPTED"      -> ServerEvent.PlayAgainAccepted
+                "PLAY_AGAIN_REJECTED"      -> {
+                    val data = json.decodeFromString<Map<String, String>>(payload)
+                    ServerEvent.PlayAgainRejected(data["playerName"] ?: "Tu rival")
+                }
+                "OPPONENT_WENT_TO_MENU"    -> {
+                    val data = json.decodeFromString<Map<String, String>>(payload)
+                    ServerEvent.OpponentWentToMenu(data["playerName"] ?: "Tu rival")
+                }
                 "OPPONENT_ANSWERED"        -> return
                 else                       -> return
             }
@@ -164,6 +177,18 @@ actual class NetworkClient {
 
     fun cancelMatchmaking() {
         send("CANCEL_MATCHMAKING", "{}")
+    }
+
+    fun requestPlayAgain() {
+        send("PLAY_AGAIN_REQUEST", "{}")
+    }
+
+    fun respondPlayAgain(accepted: Boolean) {
+        send("PLAY_AGAIN_RESPONSE", json.encodeToString(mapOf("accepted" to accepted)))
+    }
+
+    fun notifyWentToMenu() {
+        send("WENT_TO_MENU", "{}")
     }
 
     actual fun sendAnswer(questionId: Int, selectedOption: Int, timeElapsed: Long) {
