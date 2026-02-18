@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun MenuScreen(
     onStartSinglePlayer: () -> Unit,
+    onStartPvP: () -> Unit,
     onShowConfig: () -> Unit,
     onShowRecords: () -> Unit,
     onExit: () -> Unit
@@ -21,9 +22,7 @@ fun MenuScreen(
         color = MaterialTheme.colorScheme.background
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(32.dp),
+            modifier = Modifier.fillMaxSize().padding(32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -44,8 +43,18 @@ fun MenuScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             MenuButton(
-                text = "🎮 Jugar Solo",
+                text = "🎮 Jugar Solo (PVE)",
                 onClick = onStartSinglePlayer
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            MenuButton(
+                text = "🆚 Jugar PVP",
+                onClick = onStartPvP,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.tertiary
+                )
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -54,7 +63,7 @@ fun MenuScreen(
                 text = "📊 Records",
                 onClick = onShowRecords,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.tertiary
+                    containerColor = MaterialTheme.colorScheme.secondary
                 )
             )
 
@@ -89,9 +98,7 @@ private fun MenuButton(
 ) {
     Button(
         onClick = onClick,
-        modifier = Modifier
-            .width(300.dp)
-            .height(60.dp),
+        modifier = Modifier.width(300.dp).height(60.dp),
         colors = colors
     ) {
         Text(

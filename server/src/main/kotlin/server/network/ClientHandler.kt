@@ -5,6 +5,8 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import server.data.QuestionBank
 import server.data.RecordsManager
+import server.game.MatchmakingManager
+import server.game.PvPGameSession
 import server.model.*
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -25,14 +27,11 @@ class ClientHandler(
     private val writer = PrintWriter(socket.getOutputStream(), true)
 
     private var gameSession: GameSession? = null
-
-    // ── Enviar ─────────────────────────────────────────────────────────────
+    private var pvpSession: PvPGameSession? = null
 
     fun send(type: String, payload: String) {
         writer.println("$type:$payload")
     }
-
-    // ── Bucle principal ────────────────────────────────────────────────────
 
     suspend fun handle() = coroutineScope {
         try {
@@ -62,7 +61,6 @@ class ClientHandler(
                 playerName = msg.playerName
                 println("👤 Jugador conectado: $playerName")
 
-                // Bienvenida + records actuales
                 send("WELCOME", json.encodeToString(WelcomeMsg("Bienvenido, $playerName!", id)))
                 send("RECORDS", json.encodeToString(records.getAll()))
             }
@@ -72,22 +70,42 @@ class ClientHandler(
                 val questions = QuestionBank.get(msg.questions, msg.categories, msg.difficulty)
 
                 if (questions.isEmpty()) {
-                    send("ERROR", json.encodeToString(ErrorMsg("No hay preguntas para esa configuración")))
+                    send("ERROR", json.encodeToString(ErrorMsg("No hay preguntas")))
                     return
                 }
 
-                gameSession = GameSession(
-                    client       = this,
-                    config       = msg,
-                    questions    = questions,
-                    records      = records
-                )
-                gameSession!!.start()
+                // PVP o PVE
+                if (msg.mode == "PVP") {
+                    send("SEARCHING_MATCH", json.encodeToString(mapOf("status" to "searching")))
+                    val matched = MatchmakingManager.findMatch(this, msg)
+                    if (!matched) {
+                        // En cola esperando
+                        send("WAITING", json.encodeToString(mapOf("status" to "waiting")))
+                    }
+                } else {
+                    // PVE
+                    gameSession = GameSession(
+                        client    = this,
+                        config    = msg,
+                        questions = questions,
+                        records   = records
+                    )
+                    gameSession!!.start()
+                }
             }
 
             "ANSWER" -> {
                 val msg = json.decodeFromString<AnswerMsg>(payload)
-                gameSession?.processAnswer(msg)
+                if (pvpSession != null) {
+                    pvpSession!!.processAnswer(this, msg)
+                } else {
+                    gameSession?.processAnswer(msg)
+                }
+            }
+
+            "CANCEL_MATCHMAKING" -> {
+                MatchmakingManager.cancelWaiting(this)
+                send("MATCHMAKING_CANCELLED", json.encodeToString(mapOf("status" to "cancelled")))
             }
 
             "GET_RECORDS" -> {
@@ -100,8 +118,13 @@ class ClientHandler(
         }
     }
 
+    fun setPvPSession(session: PvPGameSession) {
+        pvpSession = session
+    }
+
     fun disconnect() {
         try {
+            MatchmakingManager.cancelWaiting(this)
             println("👋 Desconectado: $playerName")
             socket.close()
             server.removeClient(this)

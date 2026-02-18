@@ -25,7 +25,6 @@ actual class NetworkClient {
 
     private val json = Json { ignoreUnknownKeys = true }
 
-    // Configuración de reconexión
     private var lastHost = ""
     private var lastPort = 0
     private var lastPlayerName = ""
@@ -34,19 +33,15 @@ actual class NetworkClient {
     private val maxReconnectAttempts = 5
     private val reconnectDelayMs = 3000L
 
-    // Estado
     private val _connected = MutableStateFlow(false)
     actual val connected: StateFlow<Boolean> = _connected
 
     private val _messages = MutableSharedFlow<ServerEvent>(extraBufferCapacity = 32)
     actual val messages: SharedFlow<ServerEvent> = _messages
 
-    // ── Conectar con reconexión automática ─────────────────────────────────
-
     actual suspend fun connect(host: String, port: Int, playerName: String): Boolean =
         withContext(Dispatchers.IO) {
             try {
-                // Guardar config para reconexión
                 lastHost = host
                 lastPort = port
                 lastPlayerName = playerName
@@ -54,7 +49,7 @@ actual class NetworkClient {
                 reconnectAttempts = 0
 
                 socket = Socket(host, port).apply {
-                    soTimeout = 30000  // 30s timeout
+                    soTimeout = 30000
                     tcpNoDelay = true
                 }
                 
@@ -62,10 +57,7 @@ actual class NetworkClient {
                 writer = PrintWriter(socket!!.getOutputStream(), true)
                 _connected.value = true
 
-                // Lanzar escucha
                 listenJob = CoroutineScope(Dispatchers.IO).launch { listen() }
-
-                // Identificarse
                 send("CONNECT", json.encodeToString(ConnectMsg(playerName)))
 
                 println("✅ Conectado a $host:$port")
@@ -73,8 +65,6 @@ actual class NetworkClient {
             } catch (e: Exception) {
                 println("❌ Error al conectar: ${e.message}")
                 _connected.value = false
-                
-                // Intentar reconectar
                 if (shouldReconnect && reconnectAttempts < maxReconnectAttempts) {
                     scheduleReconnect()
                 }
@@ -82,29 +72,22 @@ actual class NetworkClient {
             }
         }
 
-    // ── Reconexión automática ──────────────────────────────────────────────
-
     private fun scheduleReconnect() {
         reconnectJob?.cancel()
         reconnectJob = CoroutineScope(Dispatchers.IO).launch {
             reconnectAttempts++
-            println("🔄 Reconectando... (intento $reconnectAttempts/$maxReconnectAttempts)")
-            
-            _messages.emit(ServerEvent.Error(ErrorData("Conexión perdida. Reconectando...")))
-            
+            println("🔄 Reconectando... ($reconnectAttempts/$maxReconnectAttempts)")
+            _messages.emit(ServerEvent.Error(ErrorData("Reconectando...")))
             delay(reconnectDelayMs)
-            
             if (shouldReconnect) {
                 val success = connect(lastHost, lastPort, lastPlayerName)
                 if (success) {
                     reconnectAttempts = 0
-                    _messages.emit(ServerEvent.Error(ErrorData("Reconexión exitosa")))
+                    _messages.emit(ServerEvent.Error(ErrorData("Reconectado")))
                 }
             }
         }
     }
-
-    // ── Escuchar mensajes ──────────────────────────────────────────────────
 
     private suspend fun listen() {
         try {
@@ -112,16 +95,15 @@ actual class NetworkClient {
                 val line = try {
                     reader?.readLine()
                 } catch (e: SocketTimeoutException) {
-                    continue  // Timeout normal, seguir escuchando
+                    continue
                 } catch (e: SocketException) {
-                    null  // Conexión cerrada
+                    null
                 }
-                
                 if (line == null) break
                 parseServerMessage(line)
             }
         } catch (e: Exception) {
-            println("❌ Error en escucha: ${e.message}")
+            println("❌ Error: ${e.message}")
         } finally {
             handleDisconnection()
         }
@@ -129,65 +111,61 @@ actual class NetworkClient {
 
     private fun handleDisconnection() {
         _connected.value = false
-        println("📡 Desconectado del servidor")
-        
-        // Intentar reconectar automáticamente
         if (shouldReconnect && reconnectAttempts < maxReconnectAttempts) {
             scheduleReconnect()
-        } else if (reconnectAttempts >= maxReconnectAttempts) {
-            CoroutineScope(Dispatchers.IO).launch {
-                _messages.emit(ServerEvent.Error(
-                    ErrorData("No se pudo reconectar después de $maxReconnectAttempts intentos")
-                ))
-            }
         }
     }
 
     private suspend fun parseServerMessage(line: String) {
-        val colonIdx = line.indexOf(':')
-        if (colonIdx < 0) return
+        val idx = line.indexOf(':')
+        if (idx < 0) return
 
-        val type    = line.substring(0, colonIdx).trim()
-        val payload = line.substring(colonIdx + 1).trim()
+        val type = line.substring(0, idx).trim()
+        val payload = line.substring(idx + 1).trim()
 
         try {
             val event: ServerEvent = when (type) {
-                "WELCOME"       -> ServerEvent.Welcome(json.decodeFromString(payload))
-                "RECORDS"       -> ServerEvent.Records(json.decodeFromString(payload))
-                "QUESTION"      -> ServerEvent.Question(json.decodeFromString(payload))
-                "ANSWER_RESULT" -> ServerEvent.AnswerResult(json.decodeFromString(payload))
-                "SCORE_UPDATE"  -> ServerEvent.ScoreUpdate(json.decodeFromString(payload))
-                "GAME_END"      -> ServerEvent.GameEnd(json.decodeFromString(payload))
-                "ERROR"         -> ServerEvent.Error(json.decodeFromString(payload))
-                else            -> return
+                "WELCOME"               -> ServerEvent.Welcome(json.decodeFromString(payload))
+                "RECORDS"               -> ServerEvent.Records(json.decodeFromString(payload))
+                "QUESTION"              -> ServerEvent.Question(json.decodeFromString(payload))
+                "ANSWER_RESULT"         -> ServerEvent.AnswerResult(json.decodeFromString(payload))
+                "SCORE_UPDATE"          -> ServerEvent.ScoreUpdate(json.decodeFromString(payload))
+                "GAME_END"              -> ServerEvent.GameEnd(json.decodeFromString(payload))
+                "ERROR"                 -> ServerEvent.Error(json.decodeFromString(payload))
+                "SEARCHING_MATCH"       -> ServerEvent.SearchingMatch
+                "WAITING"               -> ServerEvent.Waiting
+                "PVP_MATCHED"           -> {
+                    val data = json.decodeFromString<Map<String, String>>(payload)
+                    ServerEvent.PvPMatched(data["opponent"] ?: "Desconocido")
+                }
+                "MATCHMAKING_CANCELLED" -> ServerEvent.MatchmakingCancelled
+                else                    -> return
             }
             _messages.emit(event)
         } catch (e: Exception) {
-            println("⚠️ Error al parsear '$type': ${e.message}")
+            println("⚠️ Error parseo '$type': ${e.message}")
         }
     }
 
-    // ── Enviar mensajes ────────────────────────────────────────────────────
-
     actual fun startGame(questions: Int, categories: List<String>, difficulty: String, timeLimit: Int) {
         send("CREATE_TRIVIA", json.encodeToString(
-            CreateTriviaMsg(
-                mode       = "PVE",
-                questions  = questions,
-                categories = categories,
-                difficulty = difficulty,
-                timeLimit  = timeLimit
-            )
+            CreateTriviaMsg("PVE", questions, categories, difficulty, timeLimit)
         ))
+    }
+
+    fun startPvPGame(questions: Int, categories: List<String>, difficulty: String, timeLimit: Int) {
+        send("CREATE_TRIVIA", json.encodeToString(
+            CreateTriviaMsg("PVP", questions, categories, difficulty, timeLimit)
+        ))
+    }
+
+    fun cancelMatchmaking() {
+        send("CANCEL_MATCHMAKING", "{}")
     }
 
     actual fun sendAnswer(questionId: Int, selectedOption: Int, timeElapsed: Long) {
         send("ANSWER", json.encodeToString(
-            AnswerMsg(
-                questionId     = questionId,
-                selectedOption = selectedOption,
-                timeElapsed    = timeElapsed
-            )
+            AnswerMsg(questionId, selectedOption, timeElapsed)
         ))
     }
 
@@ -196,25 +174,19 @@ actual class NetworkClient {
     }
 
     actual fun disconnect() {
-        shouldReconnect = false  // No reconectar si es desconexión manual
+        shouldReconnect = false
         reconnectJob?.cancel()
         listenJob?.cancel()
-        
         send("DISCONNECT", "{}")
-        
-        try {
-            socket?.close()
-        } catch (_: Exception) {}
-        
+        try { socket?.close() } catch (_: Exception) {}
         _connected.value = false
-        println("👋 Desconectado manualmente")
     }
 
     private fun send(type: String, payload: String) {
         try {
             writer?.println("$type:$payload")
         } catch (e: Exception) {
-            println("⚠️ Error al enviar '$type': ${e.message}")
+            println("⚠️ Error envío: ${e.message}")
             handleDisconnection()
         }
     }

@@ -98,4 +98,10 @@ sealed class ServerEvent {
     data class ScoreUpdate(val data: ScoreUpdateData)   : ServerEvent()
     data class GameEnd(val data: GameEndData)           : ServerEvent()
     data class Error(val data: ErrorData)               : ServerEvent()
+    
+    // Eventos PVP
+    data object SearchingMatch : ServerEvent()
+    data object Waiting : ServerEvent()
+    data class PvPMatched(val opponentName: String) : ServerEvent()
+    data object MatchmakingCancelled : ServerEvent()
 }
