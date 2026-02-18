@@ -56,7 +56,7 @@ fun ServerGameScreen(
     onBackToMenu: () -> Unit
 ) {
     var selectedOption by remember(question) { mutableStateOf<Int?>(null) }
-    var timeLeft       by remember(question) { mutableStateOf(30) }
+    var timeLeft       by remember(question) { mutableStateOf(question?.timeLimit ?: 30) }
     val showResult = answerResult != null
     // Parar el timer cuando llegue resultado (cubre el caso del rival en contrarreloj)
     val timerRunning = !showResult && selectedOption == null

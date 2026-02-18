@@ -150,6 +150,7 @@ fun App() {
                 MenuScreen(
                     disconnectedMessage = disconnectedMessage,
                     onDisconnectedMessageShown = { disconnectedMessage = null },
+                    isTurnMode = gameConfig.gameMode == org.example.trivial.model.GameMode.POR_TURNOS,
                     onStartSinglePlayer = {
                         currentQuestion = null
                         answerResult    = null

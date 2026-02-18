@@ -51,44 +51,44 @@
         },
         "f": {
             "playerName": "f",
-            "bestScore": 120,
-            "gamesWon": 1,
+            "bestScore": 165,
+            "gamesWon": 2,
             "gamesLost": 11,
             "maxStreak": 1,
-            "totalCorrect": 37,
-            "totalAnswered": 113,
+            "totalCorrect": 46,
+            "totalAnswered": 123,
             "categoryStats": {
                 "HISTORIA": {
-                    "correct": 4,
-                    "total": 15
+                    "correct": 6,
+                    "total": 17
                 },
                 "CIENCIA_NATURALEZA": {
-                    "correct": 3,
-                    "total": 11
+                    "correct": 4,
+                    "total": 12
                 },
                 "CONOCIMIENTO_GENERAL": {
                     "correct": 3,
-                    "total": 7
+                    "total": 8
                 },
                 "ARTE_LITERATURA": {
-                    "correct": 3,
-                    "total": 10
+                    "correct": 5,
+                    "total": 12
                 },
                 "ENTRETENIMIENTO": {
-                    "correct": 7,
-                    "total": 14
+                    "correct": 8,
+                    "total": 15
                 },
                 "DEPORTES": {
-                    "correct": 5,
-                    "total": 17
+                    "correct": 6,
+                    "total": 18
                 },
                 "GEOGRAFIA": {
-                    "correct": 4,
-                    "total": 11
+                    "correct": 5,
+                    "total": 12
                 },
                 "TECNOLOGIA": {
-                    "correct": 3,
-                    "total": 18
+                    "correct": 4,
+                    "total": 19
                 }
             },
             "difficultyStats": {
@@ -97,15 +97,15 @@
                     "total": 96
                 },
                 "FACIL": {
-                    "correct": 2,
-                    "total": 5
+                    "correct": 11,
+                    "total": 15
                 },
                 "DIFICIL": {
                     "total": 2
                 }
             },
-            "totalResponseTime": 93926,
-            "lastPlayed": 1771429839242
+            "totalResponseTime": 132284,
+            "lastPlayed": 1771433112432
         }
     }
 }

@@ -3,6 +3,10 @@ package org.example.trivial.ui
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -16,12 +20,52 @@ import androidx.compose.ui.window.Dialog
 fun MenuScreen(
     disconnectedMessage: String? = null,
     onDisconnectedMessageShown: () -> Unit = {},
+    isTurnMode: Boolean = false,
     onStartSinglePlayer: () -> Unit,
     onStartPvP: () -> Unit,
     onShowConfig: () -> Unit,
     onShowRecords: () -> Unit,
     onExit: () -> Unit
 ) {
+    var showTurnModeWarning by remember { mutableStateOf(false) }
+
+    if (showTurnModeWarning) {
+        Dialog(onDismissRequest = { showTurnModeWarning = false }) {
+            Card(
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
+            ) {
+                Column(
+                    modifier = Modifier.padding(28.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("⚠️", fontSize = 48.sp)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "El modo Por Turnos requiere 2 jugadores",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onErrorContainer
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Usa el modo Simultáneo o Contrarreloj para jugar solo, o ve al PVP para jugar Por Turnos.",
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.8f)
+                    )
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Button(
+                        onClick = { showTurnModeWarning = false },
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                    ) {
+                        Text("Entendido", color = Color.White, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+        }
+    }
     // Diálogo de desconexión del rival
     if (disconnectedMessage != null) {
         Dialog(onDismissRequest = onDisconnectedMessageShown) {
@@ -80,7 +124,10 @@ fun MenuScreen(
 
             MenuButton(
                 text = "🎮 Jugar Solo (PVE)",
-                onClick = onStartSinglePlayer
+                onClick = {
+                    if (isTurnMode) showTurnModeWarning = true
+                    else onStartSinglePlayer()
+                }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
