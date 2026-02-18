@@ -12,26 +12,28 @@ object MatchmakingManager {
     private val activeMatches = ConcurrentHashMap<String, PvPGameSession>()
     
     suspend fun findMatch(client: ClientHandler, config: CreateTriviaMsg): Boolean {
-        // Buscar oponente compatible
         val opponent = waitingPlayers.poll()
         
         return if (opponent != null) {
-            // Encontrado, crear partida
             val matchId = "${client.id}-${opponent.first.id}"
-            println("🎮 Emparejando: ${client.playerName} vs ${opponent.first.playerName}")
+            println("🎮 Emparejando: ${opponent.first.playerName} (host) vs ${client.playerName}")
+            println("⚙️ Config host: ${opponent.second.mode}, ${opponent.second.difficulty}")
             
-            // Crear sesión PVP
             val session = PvPGameSession(
-                client1 = client,
-                client2 = opponent.first,
-                config = config
+                client1 = opponent.first,
+                client2 = client,
+                config = opponent.second
             )
             
             activeMatches[matchId] = session
-            session.start()
+            
+            // Lanzar la sesión en una coroutine separada
+            CoroutineScope(Dispatchers.IO).launch {
+                session.start()
+            }
+            
             true
         } else {
-            // Nadie esperando, entrar en cola
             println("⏳ ${client.playerName} esperando oponente...")
             waitingPlayers.offer(Pair(client, config))
             false

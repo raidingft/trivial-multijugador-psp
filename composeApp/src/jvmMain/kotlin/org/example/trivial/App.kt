@@ -6,17 +6,10 @@ import kotlinx.coroutines.launch
 import org.example.trivial.network.NetworkClient
 import org.example.trivial.network.model.*
 import org.example.trivial.model.GameConfig
-import org.example.trivial.sound.SoundPlayer
 import org.example.trivial.ui.*
 
 enum class Screen {
-    LOGIN,
-    MENU,
-    CONFIG,
-    RECORDS,
-    WAITING_MATCH,
-    GAME_SERVER,
-    RESULTS
+    LOGIN, MENU, CONFIG, RECORDS, WAITING_MATCH, GAME_SERVER, RESULTS
 }
 
 @Composable
@@ -54,6 +47,18 @@ fun App() {
                 }
                 is ServerEvent.PvPMatched -> {
                     opponentName = event.opponentName
+                    // Actualizar el modo de juego si viene del servidor (es el del host)
+                    event.gameMode?.let { mode ->
+                        gameConfig = gameConfig.copy(
+                            gameMode = when (mode) {
+                                "POR_TURNOS"  -> org.example.trivial.model.GameMode.POR_TURNOS
+                                "SIMULTANEO"  -> org.example.trivial.model.GameMode.SIMULTANEO
+                                "CONTRARRELOJ" -> org.example.trivial.model.GameMode.CONTRARRELOJ
+                                else          -> gameConfig.gameMode
+                            }
+                        )
+                        println("⚙️ Modo actualizado del host: $mode")
+                    }
                 }
                 is ServerEvent.MatchmakingCancelled -> {
                     currentScreen = Screen.MENU
@@ -87,7 +92,6 @@ fun App() {
 
     MaterialTheme {
         when (currentScreen) {
-
             Screen.LOGIN -> {
                 LoginScreen(
                     isConnecting = isConnecting,
@@ -135,7 +139,8 @@ fun App() {
                             questions  = gameConfig.numberOfQuestions,
                             categories = gameConfig.categories.map { it.name },
                             difficulty = gameConfig.difficulty.name,
-                            timeLimit  = gameConfig.timeLimit
+                            timeLimit  = gameConfig.timeLimit,
+                            mode       = gameConfig.gameMode.name  // Enviar el modo
                         )
                         currentScreen = Screen.WAITING_MATCH
                     },

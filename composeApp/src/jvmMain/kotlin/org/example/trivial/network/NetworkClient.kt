@@ -60,10 +60,10 @@ actual class NetworkClient {
                 listenJob = CoroutineScope(Dispatchers.IO).launch { listen() }
                 send("CONNECT", json.encodeToString(ConnectMsg(playerName)))
 
-                println("✅ Conectado a $host:$port")
+                println("✅ Conectado")
                 true
             } catch (e: Exception) {
-                println("❌ Error al conectar: ${e.message}")
+                println("❌ Error: ${e.message}")
                 _connected.value = false
                 if (shouldReconnect && reconnectAttempts < maxReconnectAttempts) {
                     scheduleReconnect()
@@ -76,15 +76,10 @@ actual class NetworkClient {
         reconnectJob?.cancel()
         reconnectJob = CoroutineScope(Dispatchers.IO).launch {
             reconnectAttempts++
-            println("🔄 Reconectando... ($reconnectAttempts/$maxReconnectAttempts)")
             _messages.emit(ServerEvent.Error(ErrorData("Reconectando...")))
             delay(reconnectDelayMs)
             if (shouldReconnect) {
-                val success = connect(lastHost, lastPort, lastPlayerName)
-                if (success) {
-                    reconnectAttempts = 0
-                    _messages.emit(ServerEvent.Error(ErrorData("Reconectado")))
-                }
+                connect(lastHost, lastPort, lastPlayerName)
             }
         }
     }
@@ -135,15 +130,19 @@ actual class NetworkClient {
                 "SEARCHING_MATCH"       -> ServerEvent.SearchingMatch
                 "WAITING"               -> ServerEvent.Waiting
                 "PVP_MATCHED"           -> {
-                    val data = json.decodeFromString<Map<String, String>>(payload)
-                    ServerEvent.PvPMatched(data["opponent"] ?: "Desconocido")
+                    val data = json.decodeFromString<Map<String, String?>>(payload)
+                    ServerEvent.PvPMatched(
+                        opponentName = data["opponent"] ?: "Desconocido",
+                        gameMode = data["mode"]
+                    )
                 }
                 "MATCHMAKING_CANCELLED" -> ServerEvent.MatchmakingCancelled
+                "OPPONENT_ANSWERED"     -> return
                 else                    -> return
             }
             _messages.emit(event)
         } catch (e: Exception) {
-            println("⚠️ Error parseo '$type': ${e.message}")
+            println("⚠️ Error: ${e.message}")
         }
     }
 
@@ -153,9 +152,9 @@ actual class NetworkClient {
         ))
     }
 
-    fun startPvPGame(questions: Int, categories: List<String>, difficulty: String, timeLimit: Int) {
-        send("CREATE_TRIVIA", json.encodeToString(
-            CreateTriviaMsg("PVP", questions, categories, difficulty, timeLimit)
+    fun startPvPGame(questions: Int, categories: List<String>, difficulty: String, timeLimit: Int, mode: String) {
+        send("START_PVP_MATCHMAKING", json.encodeToString(
+            CreateTriviaMsg(mode, questions, categories, difficulty, timeLimit)
         ))
     }
 
@@ -186,7 +185,7 @@ actual class NetworkClient {
         try {
             writer?.println("$type:$payload")
         } catch (e: Exception) {
-            println("⚠️ Error envío: ${e.message}")
+            println("⚠️ Error: ${e.message}")
             handleDisconnection()
         }
     }

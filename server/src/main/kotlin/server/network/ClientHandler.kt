@@ -28,6 +28,7 @@ class ClientHandler(
 
     private var gameSession: GameSession? = null
     private var pvpSession: PvPGameSession? = null
+    private var isPvPMode = false
 
     fun send(type: String, payload: String) {
         writer.println("$type:$payload")
@@ -65,6 +66,17 @@ class ClientHandler(
                 send("RECORDS", json.encodeToString(records.getAll()))
             }
 
+            "START_PVP_MATCHMAKING" -> {
+                val msg = json.decodeFromString<CreateTriviaMsg>(payload)
+                isPvPMode = true
+                
+                send("SEARCHING_MATCH", json.encodeToString(mapOf("status" to "searching")))
+                val matched = MatchmakingManager.findMatch(this, msg)
+                if (!matched) {
+                    send("WAITING", json.encodeToString(mapOf("status" to "waiting")))
+                }
+            }
+
             "CREATE_TRIVIA" -> {
                 val msg = json.decodeFromString<CreateTriviaMsg>(payload)
                 val questions = QuestionBank.get(msg.questions, msg.categories, msg.difficulty)
@@ -74,29 +86,19 @@ class ClientHandler(
                     return
                 }
 
-                // PVP o PVE
-                if (msg.mode == "PVP") {
-                    send("SEARCHING_MATCH", json.encodeToString(mapOf("status" to "searching")))
-                    val matched = MatchmakingManager.findMatch(this, msg)
-                    if (!matched) {
-                        // En cola esperando
-                        send("WAITING", json.encodeToString(mapOf("status" to "waiting")))
-                    }
-                } else {
-                    // PVE
-                    gameSession = GameSession(
-                        client    = this,
-                        config    = msg,
-                        questions = questions,
-                        records   = records
-                    )
-                    gameSession!!.start()
-                }
+                // Modo PVE
+                gameSession = GameSession(
+                    client    = this,
+                    config    = msg,
+                    questions = questions,
+                    records   = records
+                )
+                gameSession!!.start()
             }
 
             "ANSWER" -> {
                 val msg = json.decodeFromString<AnswerMsg>(payload)
-                if (pvpSession != null) {
+                if (isPvPMode && pvpSession != null) {
                     pvpSession!!.processAnswer(this, msg)
                 } else {
                     gameSession?.processAnswer(msg)
@@ -105,6 +107,7 @@ class ClientHandler(
 
             "CANCEL_MATCHMAKING" -> {
                 MatchmakingManager.cancelWaiting(this)
+                isPvPMode = false
                 send("MATCHMAKING_CANCELLED", json.encodeToString(mapOf("status" to "cancelled")))
             }
 

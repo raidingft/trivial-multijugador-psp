@@ -119,13 +119,64 @@ fun ServerGameScreen(
                 modifier = Modifier.fillMaxSize().padding(20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // ── Panel de puntuación ────────────────────────────────────
+                // ── Modo de juego ────────────────────────────────────
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    )
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                )
                 ) {
+                        Text(
+                            text = when (gameMode) {
+                                GameMode.POR_TURNOS -> "🔄 Modo: Por Turnos"
+                                GameMode.SIMULTANEO -> "⚡ Modo: Simultáneo"
+                                GameMode.CONTRARRELOJ -> "⏱️ Modo: Contrarreloj"
+                            },
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.fillMaxWidth().padding(12.dp),
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    // ── Indicador de turno (solo en modo POR_TURNOS) ────────────
+                    if (gameMode == GameMode.POR_TURNOS && question.currentTurnPlayer != null) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (question.currentTurnPlayer == playerName) {
+                                    Color(0xFF4CAF50)  // Verde si es tu turno
+                                } else {
+                                    Color(0xFFFF9800)  // Naranja si es turno del otro
+                                }
+                            )
+                        ) {
+                            Text(
+                                text = if (question.currentTurnPlayer == playerName) {
+                                    "👉 ¡ES TU TURNO!"
+                                } else {
+                                    "⏸️ Turno de: ${question.currentTurnPlayer}"
+                                },
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.fillMaxWidth().padding(12.dp),
+                                textAlign = TextAlign.Center,
+                                color = Color.White
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
+                    // ── Panel de puntuación ────────────────────────────────────
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer
+                        )
+                    ) {
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(12.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -273,7 +324,7 @@ fun ServerGameScreen(
 
                     Button(
                         onClick = {
-                            if (!showResult && selectedOption == null) {
+                            if (!showResult && selectedOption == null && (gameMode != GameMode.POR_TURNOS || question.currentTurnPlayer == playerName)) {
                                 selectedOption = index
                                 onAnswer(question.id, index)
                             }
@@ -286,7 +337,7 @@ fun ServerGameScreen(
                             disabledContentColor   = textColor
                         ),
                         shape = RoundedCornerShape(12.dp),
-                        enabled = !showResult
+                        enabled = !showResult && (gameMode != GameMode.POR_TURNOS || question.currentTurnPlayer == playerName)
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),

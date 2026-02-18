@@ -56,7 +56,8 @@ data class QuestionMsg(
     val options: List<String>,
     val timeLimit: Int,
     val questionNumber: Int,
-    val totalQuestions: Int
+    val totalQuestions: Int,
+    val currentTurnPlayer: String? = null  // Para modo POR_TURNOS
 )
 
 @Serializable
@@ -92,19 +93,11 @@ data class WelcomeMsg(val message: String, val playerId: String)
 @Serializable
 data class ErrorMsg(val message: String)
 
-// ── Records con estadísticas detalladas ────────────────────────────────────
+@Serializable
+data class CategoryStats(val correct: Int = 0, val total: Int = 0)
 
 @Serializable
-data class CategoryStats(
-    val correct: Int = 0,
-    val total: Int = 0
-)
-
-@Serializable
-data class DifficultyStats(
-    val correct: Int = 0,
-    val total: Int = 0
-)
+data class DifficultyStats(val correct: Int = 0, val total: Int = 0)
 
 @Serializable
 data class PlayerRecord(
@@ -115,12 +108,10 @@ data class PlayerRecord(
     val maxStreak: Int = 0,
     val totalCorrect: Int = 0,
     val totalAnswered: Int = 0,
-    
-    // Nuevas estadísticas
     val categoryStats: MutableMap<String, CategoryStats> = mutableMapOf(),
     val difficultyStats: MutableMap<String, DifficultyStats> = mutableMapOf(),
-    val totalResponseTime: Long = 0,  // milisegundos acumulados
-    val lastPlayed: Long = 0  // timestamp
+    val totalResponseTime: Long = 0,
+    val lastPlayed: Long = 0
 )
 
 @Serializable
