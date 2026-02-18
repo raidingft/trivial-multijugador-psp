@@ -136,9 +136,13 @@ actual class NetworkClient {
                         gameMode = data["mode"]
                     )
                 }
-                "MATCHMAKING_CANCELLED" -> ServerEvent.MatchmakingCancelled
-                "OPPONENT_ANSWERED"     -> return
-                else                    -> return
+                "MATCHMAKING_CANCELLED"    -> ServerEvent.MatchmakingCancelled
+                "OPPONENT_DISCONNECTED"    -> {
+                    val data = json.decodeFromString<Map<String, String>>(payload)
+                    ServerEvent.OpponentDisconnected(data["playerName"] ?: "Tu rival")
+                }
+                "OPPONENT_ANSWERED"        -> return
+                else                       -> return
             }
             _messages.emit(event)
         } catch (e: Exception) {

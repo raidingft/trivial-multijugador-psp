@@ -30,6 +30,7 @@ fun App() {
     var records          by remember { mutableStateOf<RecordsData?>(null) }
     var questionStart    by remember { mutableStateOf(0L) }
     var opponentName     by remember { mutableStateOf<String?>(null) }
+    var disconnectedMessage by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(networkClient) {
         networkClient.messages.collect { event ->
@@ -86,6 +87,10 @@ fun App() {
                 is ServerEvent.Error -> {
                     println("❌ Error: ${event.data.message}")
                 }
+                is ServerEvent.OpponentDisconnected -> {
+                    disconnectedMessage = "${event.playerName} se ha desconectado"
+                    currentScreen = Screen.MENU
+                }
             }
         }
     }
@@ -114,6 +119,8 @@ fun App() {
 
             Screen.MENU -> {
                 MenuScreen(
+                    disconnectedMessage = disconnectedMessage,
+                    onDisconnectedMessageShown = { disconnectedMessage = null },
                     onStartSinglePlayer = {
                         currentQuestion = null
                         answerResult    = null

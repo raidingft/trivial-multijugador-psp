@@ -1,6 +1,6 @@
 package server.game
 
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import server.data.QuestionBank
@@ -20,6 +20,8 @@ class PvPGameSession(
     private var currentIndex = 0
     private var questionStartTime = 0L
     private var currentTurnIsPlayer1 = true
+    private var questionProcessed = false
+    private var timeoutJob: Job? = null
     
     private var score1 = 0
     private var streak1 = 0
@@ -81,8 +83,24 @@ class PvPGameSession(
             currentTurnPlayer = currentTurnPlayer
         )
         
+        questionProcessed = false
         client1.send("QUESTION", json.encodeToString(msg))
         client2.send("QUESTION", json.encodeToString(msg))
+        
+        // Timeout en el servidor para no quedarse colgado (por si alguien no responde)
+        if (config.mode == "SIMULTANEO" || config.mode == "CONTRARRELOJ") {
+            timeoutJob?.cancel()
+            timeoutJob = kotlinx.coroutines.GlobalScope.launch {
+                delay((config.timeLimit + 5) * 1000L)
+                if (!questionProcessed) {
+                    // Forzar respuesta -1 a quien no haya contestado
+                    val q = questions[currentIndex]
+                    if (answer1 == null) { answer1 = -1; time1 = (config.timeLimit * 1000).toLong() }
+                    if (answer2 == null) { answer2 = -1; time2 = (config.timeLimit * 1000).toLong() }
+                    processSimultaneousAnswers(q)
+                }
+            }
+        }
     }
 
     suspend fun processAnswer(client: ClientHandler, msg: AnswerMsg) {
@@ -95,10 +113,14 @@ class PvPGameSession(
             if (!isPlayer1Turn && !isPlayer2Turn) return
         }
         
+        if (questionProcessed) return
+        
         if (client.id == client1.id) {
+            if (answer1 != null) return  // Ya respondió
             answer1 = msg.selectedOption
             time1 = elapsed
         } else {
+            if (answer2 != null) return  // Ya respondió
             answer2 = msg.selectedOption
             time2 = elapsed
         }
@@ -108,8 +130,64 @@ class PvPGameSession(
             return
         }
         
-        if (answer1 == null || answer2 == null) return
-        processSimultaneousAnswers(q)
+        if (config.mode == "CONTRARRELOJ" || config.mode == "SIMULTANEO") {
+            // El primero en responder gana la pregunta
+            questionProcessed = true
+            timeoutJob?.cancel()
+            processContrarrelojAnswer(q)
+            return
+        }
+    }
+
+    private suspend fun processContrarrelojAnswer(q: TriviaQuestion) {
+        // El jugador que respondió primero gana; el otro recibe sin puntos
+        val player1Answered = answer1 != null
+        val player2Answered = answer2 != null
+        
+        val isCorrect1 = if (player1Answered) answer1 == q.correctAnswer else false
+        val isCorrect2 = if (player2Answered) answer2 == q.correctAnswer else false
+        
+        var points1 = 0
+        if (isCorrect1) {
+            correctCount1++; streak1++
+            points1 = when (q.difficulty) {
+                Difficulty.FACIL -> 10; Difficulty.MEDIA -> 15
+                Difficulty.DIFICIL -> 20; Difficulty.MIXTA -> 10
+            }
+            if (time1 < 5_000) points1 += 5
+            if (streak1 >= 5) points1 *= 2
+            score1 += points1
+        } else if (player1Answered) streak1 = 0
+        
+        var points2 = 0
+        if (isCorrect2) {
+            correctCount2++; streak2++
+            points2 = when (q.difficulty) {
+                Difficulty.FACIL -> 10; Difficulty.MEDIA -> 15
+                Difficulty.DIFICIL -> 20; Difficulty.MIXTA -> 10
+            }
+            if (time2 < 5_000) points2 += 5
+            if (streak2 >= 5) points2 *= 2
+            score2 += points2
+        } else if (player2Answered) streak2 = 0
+        
+        client1.send("ANSWER_RESULT", json.encodeToString(
+            AnswerResultMsg(q.id, isCorrect1, q.correctAnswer, points1, q.explanation)
+        ))
+        client2.send("ANSWER_RESULT", json.encodeToString(
+            AnswerResultMsg(q.id, isCorrect2, q.correctAnswer, points2, q.explanation)
+        ))
+        
+        val scoreUpdate = ScoreUpdateMsg(listOf(
+            PlayerScoreData(client1.playerName, score1, streak1, correctCount1),
+            PlayerScoreData(client2.playerName, score2, streak2, correctCount2)
+        ))
+        client1.send("SCORE_UPDATE", json.encodeToString(scoreUpdate))
+        client2.send("SCORE_UPDATE", json.encodeToString(scoreUpdate))
+        
+        currentIndex++
+        delay(3000)
+        sendNextQuestion()
     }
 
     private suspend fun processTurnBasedAnswer(q: TriviaQuestion) {
@@ -157,6 +235,9 @@ class PvPGameSession(
     }
 
     private suspend fun processSimultaneousAnswers(q: TriviaQuestion) {
+        if (questionProcessed) return
+        questionProcessed = true
+
         val isCorrect1 = answer1 == q.correctAnswer
         val isCorrect2 = answer2 == q.correctAnswer
         
@@ -210,6 +291,15 @@ class PvPGameSession(
         currentIndex++
         delay(3000)
         sendNextQuestion()
+    }
+
+    fun notifyOpponentDisconnected(disconnectedClient: ClientHandler) {
+        val rival = if (disconnectedClient.id == client1.id) client2 else client1
+        rival.send("OPPONENT_DISCONNECTED", json.encodeToString(
+            mapOf("playerName" to disconnectedClient.playerName)
+        ))
+        timeoutJob?.cancel()
+        MatchmakingManager.removeMatch(gameId)
     }
 
     private fun endGame() {

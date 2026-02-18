@@ -91,7 +91,7 @@ fun ServerGameScreen(
     LaunchedEffect(question) {
         if (question != null && gameMode == GameMode.CONTRARRELOJ) {
             timeLeft = question.timeLimit
-            while (timeLeft > 0 && !showResult) {
+            while (timeLeft > 0 && !showResult && selectedOption == null) {
                 delay(1000)
                 timeLeft--
             }

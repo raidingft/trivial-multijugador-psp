@@ -105,4 +105,5 @@ sealed class ServerEvent {
     data object Waiting : ServerEvent()
     data class PvPMatched(val opponentName: String, val gameMode: String?) : ServerEvent()
     data object MatchmakingCancelled : ServerEvent()
+    data class OpponentDisconnected(val playerName: String) : ServerEvent()
 }

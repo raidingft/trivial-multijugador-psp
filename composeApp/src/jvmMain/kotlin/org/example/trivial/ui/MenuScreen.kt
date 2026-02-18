@@ -5,18 +5,54 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 
 @Composable
 fun MenuScreen(
+    disconnectedMessage: String? = null,
+    onDisconnectedMessageShown: () -> Unit = {},
     onStartSinglePlayer: () -> Unit,
     onStartPvP: () -> Unit,
     onShowConfig: () -> Unit,
     onShowRecords: () -> Unit,
     onExit: () -> Unit
 ) {
+    // Diálogo de desconexión del rival
+    if (disconnectedMessage != null) {
+        Dialog(onDismissRequest = onDisconnectedMessageShown) {
+            Card(
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFB71C1C))
+            ) {
+                Column(
+                    modifier = Modifier.padding(32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("📡", fontSize = 48.sp)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = disconnectedMessage,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Button(
+                        onClick = onDisconnectedMessageShown,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.White)
+                    ) {
+                        Text("Aceptar", color = Color(0xFFB71C1C), fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+        }
+    }
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background

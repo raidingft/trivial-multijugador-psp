@@ -128,6 +128,7 @@ class ClientHandler(
     fun disconnect() {
         try {
             MatchmakingManager.cancelWaiting(this)
+            pvpSession?.notifyOpponentDisconnected(this)
             println("👋 Desconectado: $playerName")
             socket.close()
             server.removeClient(this)
