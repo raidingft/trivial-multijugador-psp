@@ -2,8 +2,6 @@ package org.example.trivial.network.model
 
 import kotlinx.serialization.Serializable
 
-// ── Mensajes que ENVÍA el cliente ──────────────────────────────────────────
-
 @Serializable
 data class ConnectMsg(val playerName: String)
 
@@ -23,22 +21,14 @@ data class AnswerMsg(
     val timeElapsed: Long
 )
 
-// ── Mensajes que RECIBE el cliente ─────────────────────────────────────────
-
 @Serializable
 data class WelcomeData(val message: String, val playerId: String)
 
 @Serializable
-data class CategoryStats(
-    val correct: Int = 0,
-    val total: Int = 0
-)
+data class CategoryStats(val correct: Int = 0, val total: Int = 0)
 
 @Serializable
-data class DifficultyStats(
-    val correct: Int = 0,
-    val total: Int = 0
-)
+data class DifficultyStats(val correct: Int = 0, val total: Int = 0)
 
 @Serializable
 data class PlayerRecordData(
@@ -99,8 +89,6 @@ data class GameEndData(
 
 @Serializable
 data class ErrorData(val message: String)
-
-// ── Eventos ────────────────────────────────────────────────────────────────
 
 sealed class ServerEvent {
     data class Welcome(val data: WelcomeData)           : ServerEvent()
