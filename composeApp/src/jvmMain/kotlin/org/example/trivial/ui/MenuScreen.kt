@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.sp
 fun MenuScreen(
     onStartSinglePlayer: () -> Unit,
     onShowConfig: () -> Unit,
+    onShowRecords: () -> Unit,
     onExit: () -> Unit
 ) {
     Surface(
@@ -26,7 +27,6 @@ fun MenuScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Título
             Text(
                 text = "🎯 TRIVIAL",
                 fontSize = 56.sp,
@@ -43,10 +43,19 @@ fun MenuScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Botones
             MenuButton(
                 text = "🎮 Jugar Solo",
                 onClick = onStartSinglePlayer
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            MenuButton(
+                text = "📊 Records",
+                onClick = onShowRecords,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.tertiary
+                )
             )
 
             Spacer(modifier = Modifier.height(16.dp))

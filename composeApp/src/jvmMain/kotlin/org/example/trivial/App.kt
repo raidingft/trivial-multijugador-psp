@@ -13,7 +13,8 @@ enum class Screen {
     LOGIN,
     MENU,
     CONFIG,
-    GAME_SERVER,  // partida gestionada por el servidor
+    RECORDS,
+    GAME_SERVER,
     RESULTS
 }
 
@@ -28,7 +29,6 @@ fun App() {
     var isConnecting  by remember { mutableStateOf(false) }
     var connectError  by remember { mutableStateOf<String?>(null) }
 
-    // Estado del juego en curso (viene del servidor)
     var currentQuestion  by remember { mutableStateOf<QuestionData?>(null) }
     var answerResult     by remember { mutableStateOf<AnswerResultData?>(null) }
     var scores           by remember { mutableStateOf<List<PlayerScoreData>>(emptyList()) }
@@ -36,7 +36,6 @@ fun App() {
     var records          by remember { mutableStateOf<RecordsData?>(null) }
     var questionStart    by remember { mutableStateOf(0L) }
 
-    // Escuchar mensajes del servidor
     LaunchedEffect(networkClient) {
         networkClient.messages.collect { event ->
             when (event) {
@@ -61,6 +60,7 @@ fun App() {
                 is ServerEvent.GameEnd -> {
                     gameEndData   = event.data
                     currentScreen = Screen.RESULTS
+                    networkClient.requestRecords()  // Actualizar records
                 }
                 is ServerEvent.Error -> {
                     println("❌ Error del servidor: ${event.data.message}")
@@ -95,13 +95,11 @@ fun App() {
             Screen.MENU -> {
                 MenuScreen(
                     onStartSinglePlayer = {
-                        // Limpiar estado anterior
                         currentQuestion = null
                         answerResult    = null
                         scores          = emptyList()
                         gameEndData     = null
 
-                        // Pedir partida al servidor
                         networkClient.startGame(
                             questions  = gameConfig.numberOfQuestions,
                             categories = gameConfig.categories.map { it.name },
@@ -110,8 +108,9 @@ fun App() {
                         )
                         currentScreen = Screen.GAME_SERVER
                     },
-                    onShowConfig = { currentScreen = Screen.CONFIG },
-                    onExit       = { networkClient.disconnect(); System.exit(0) }
+                    onShowConfig  = { currentScreen = Screen.CONFIG },
+                    onShowRecords = { currentScreen = Screen.RECORDS },
+                    onExit        = { networkClient.disconnect(); System.exit(0) }
                 )
             }
 
@@ -120,6 +119,14 @@ fun App() {
                     currentConfig    = gameConfig,
                     onConfigChanged  = { gameConfig = it },
                     onBack           = { currentScreen = Screen.MENU }
+                )
+            }
+
+            Screen.RECORDS -> {
+                RecordsScreen(
+                    records    = records,
+                    playerName = playerName,
+                    onBack     = { currentScreen = Screen.MENU }
                 )
             }
 

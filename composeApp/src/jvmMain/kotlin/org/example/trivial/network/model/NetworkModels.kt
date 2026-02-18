@@ -29,7 +29,16 @@ data class AnswerMsg(
 data class WelcomeData(val message: String, val playerId: String)
 
 @Serializable
-data class RecordsData(val players: Map<String, PlayerRecordData> = emptyMap())
+data class CategoryStats(
+    val correct: Int = 0,
+    val total: Int = 0
+)
+
+@Serializable
+data class DifficultyStats(
+    val correct: Int = 0,
+    val total: Int = 0
+)
 
 @Serializable
 data class PlayerRecordData(
@@ -39,8 +48,15 @@ data class PlayerRecordData(
     val gamesLost: Int = 0,
     val maxStreak: Int = 0,
     val totalCorrect: Int = 0,
-    val totalAnswered: Int = 0
+    val totalAnswered: Int = 0,
+    val categoryStats: Map<String, CategoryStats> = emptyMap(),
+    val difficultyStats: Map<String, DifficultyStats> = emptyMap(),
+    val totalResponseTime: Long = 0,
+    val lastPlayed: Long = 0
 )
+
+@Serializable
+data class RecordsData(val players: Map<String, PlayerRecordData> = emptyMap())
 
 @Serializable
 data class QuestionData(

@@ -31,6 +31,44 @@
             "maxStreak": 1,
             "totalCorrect": 3,
             "totalAnswered": 10
+        },
+        "f": {
+            "playerName": "f",
+            "bestScore": 100,
+            "gamesLost": 2,
+            "maxStreak": 1,
+            "totalCorrect": 8,
+            "totalAnswered": 20,
+            "categoryStats": {
+                "HISTORIA": {
+                    "total": 1
+                },
+                "CIENCIA_NATURALEZA": {
+                    "total": 2
+                },
+                "CONOCIMIENTO_GENERAL": {
+                    "correct": 2,
+                    "total": 2
+                },
+                "ARTE_LITERATURA": {
+                    "correct": 1,
+                    "total": 3
+                },
+                "ENTRETENIMIENTO": {
+                    "total": 1
+                },
+                "DEPORTES": {
+                    "total": 1
+                }
+            },
+            "difficultyStats": {
+                "MEDIA": {
+                    "correct": 3,
+                    "total": 10
+                }
+            },
+            "totalResponseTime": 1642,
+            "lastPlayed": 1771405361679
         }
     }
 }

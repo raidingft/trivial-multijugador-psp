@@ -21,6 +21,11 @@ class GameSession(
     private var streak = 0
     private var correct = 0
     private var questionStartTime = 0L
+    
+    // Estadísticas detalladas
+    private val categoryStats = mutableMapOf<Category, Pair<Int, Int>>() // (correct, total)
+    private val difficultyStats = mutableMapOf<Difficulty, Pair<Int, Int>>()
+    private var totalResponseTime = 0L
 
     suspend fun start() {
         println("🎮 Partida iniciada [$gameId] para ${client.playerName} — ${config.mode}, ${questions.size} preguntas")
@@ -53,6 +58,25 @@ class GameSession(
         val q = questions.find { it.id == msg.questionId } ?: return
         val elapsed = System.currentTimeMillis() - questionStartTime
         val isCorrect = msg.selectedOption == q.correctAnswer
+        
+        // Trackear tiempo
+        totalResponseTime += elapsed
+
+        // Trackear categoría
+        val catStats = categoryStats.getOrDefault(q.category, Pair(0, 0))
+        categoryStats[q.category] = if (isCorrect) {
+            Pair(catStats.first + 1, catStats.second + 1)
+        } else {
+            Pair(catStats.first, catStats.second + 1)
+        }
+        
+        // Trackear dificultad
+        val diffStats = difficultyStats.getOrDefault(q.difficulty, Pair(0, 0))
+        difficultyStats[q.difficulty] = if (isCorrect) {
+            Pair(diffStats.first + 1, diffStats.second + 1)
+        } else {
+            Pair(diffStats.first, diffStats.second + 1)
+        }
 
         var points = 0
         if (isCorrect) {
@@ -100,12 +124,15 @@ class GameSession(
         val won = correct > totalAnswered / 2
 
         records.updateAfterGame(
-            playerName = client.playerName,
-            score      = score,
-            won        = won,
-            streak     = streak,
-            correct    = correct,
-            answered   = totalAnswered
+            playerName        = client.playerName,
+            score             = score,
+            won               = won,
+            streak            = streak,
+            correct           = correct,
+            answered          = totalAnswered,
+            categoryStats     = categoryStats,
+            difficultyStats   = difficultyStats,
+            totalResponseTime = totalResponseTime
         )
 
         client.send("GAME_END", json.encodeToString(
