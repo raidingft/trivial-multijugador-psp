@@ -43,7 +43,6 @@ fun RecordsScreen(
                 modifier = Modifier.padding(bottom = 24.dp)
             )
             
-            // Mis estadísticas
             myRecord?.let { record ->
                 Text(
                     text = "Tus Estadísticas",
@@ -81,7 +80,6 @@ fun RecordsScreen(
                     }
                 }
                 
-                // Estadísticas por categoría
                 if (record.categoryStats.isNotEmpty()) {
                     Text(
                         text = "Estadísticas por Categoría",
@@ -108,7 +106,6 @@ fun RecordsScreen(
                                     StatRow("$icon $name", "$percent% (${stats.correct}/${stats.total})")
                                 }
                             
-                            // Categoría favorita
                             val favorite = record.categoryStats.entries
                                 .filter { it.value.total >= 3 }
                                 .maxByOrNull { 
@@ -128,7 +125,6 @@ fun RecordsScreen(
                     }
                 }
                 
-                // Estadísticas por dificultad
                 if (record.difficultyStats.isNotEmpty()) {
                     Text(
                         text = "Estadísticas por Dificultad",
@@ -155,7 +151,6 @@ fun RecordsScreen(
                 }
             }
             
-            // Ranking global
             if (ranking.isNotEmpty()) {
                 Text(
                     text = "🏅 Ranking Global",

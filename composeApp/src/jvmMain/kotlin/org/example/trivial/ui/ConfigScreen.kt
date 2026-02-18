@@ -42,7 +42,6 @@ fun ConfigScreen(
                 modifier = Modifier.padding(bottom = 32.dp)
             )
             
-            // Número de preguntas
             ConfigSection(title = "Número de Preguntas") {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -61,7 +60,6 @@ fun ConfigScreen(
             
             Spacer(modifier = Modifier.height(24.dp))
             
-            // Dificultad
             ConfigSection(title = "Dificultad") {
                 Column {
                     Difficulty.values().forEach { diff ->
@@ -87,7 +85,6 @@ fun ConfigScreen(
             
             Spacer(modifier = Modifier.height(24.dp))
             
-            // Modo de juego
             ConfigSection(title = "Modo de Juego") {
                 Column {
                     GameMode.values().forEach { mode ->
@@ -113,7 +110,6 @@ fun ConfigScreen(
             
             Spacer(modifier = Modifier.height(24.dp))
             
-            // Tiempo límite
             if (gameMode == GameMode.CONTRARRELOJ) {
                 ConfigSection(title = "Tiempo por Pregunta") {
                     Row(
@@ -133,7 +129,6 @@ fun ConfigScreen(
                 Spacer(modifier = Modifier.height(24.dp))
             }
             
-            // Botones
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
@@ -175,6 +170,7 @@ fun ConfigScreen(
     }
 }
 
+// Composable Sección de Configuración
 @Composable
 private fun ConfigSection(
     title: String,

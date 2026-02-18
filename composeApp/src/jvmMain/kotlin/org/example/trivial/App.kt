@@ -31,11 +31,12 @@ fun App() {
     var questionStart    by remember { mutableStateOf(0L) }
     var opponentName     by remember { mutableStateOf<String?>(null) }
     var disconnectedMessage   by remember { mutableStateOf<String?>(null) }
-    var playAgainRequest      by remember { mutableStateOf<String?>(null) }  // nombre del rival que quiere revancha
-    var playAgainRejected     by remember { mutableStateOf<String?>(null) }  // nombre del rival que rechazó
-    var opponentWentToMenu    by remember { mutableStateOf<String?>(null) }  // nombre del rival que fue al menú
+    var playAgainRequest      by remember { mutableStateOf<String?>(null) }
+    var playAgainRejected     by remember { mutableStateOf<String?>(null) }
+    var opponentWentToMenu    by remember { mutableStateOf<String?>(null) }
     var isPvPGame             by remember { mutableStateOf(false) }
 
+    // Método Escuchar Eventos del Servidor
     LaunchedEffect(networkClient) {
         networkClient.messages.collect { event ->
             when (event) {
@@ -53,7 +54,7 @@ fun App() {
                 is ServerEvent.PvPMatched -> {
                     isPvPGame = true
                     opponentName = event.opponentName
-                    // Actualizar el modo de juego si viene del servidor (es el del host)
+                    // Actualizar modo de juego si viene del servidor (es el del host)
                     event.gameMode?.let { mode ->
                         gameConfig = gameConfig.copy(
                             gameMode = when (mode) {
@@ -126,6 +127,7 @@ fun App() {
 
     MaterialTheme {
         when (currentScreen) {
+            // Pantalla Login
             Screen.LOGIN -> {
                 LoginScreen(
                     isConnecting = isConnecting,
@@ -146,6 +148,7 @@ fun App() {
                 )
             }
 
+            // Pantalla Menú
             Screen.MENU -> {
                 MenuScreen(
                     disconnectedMessage = disconnectedMessage,
@@ -192,6 +195,7 @@ fun App() {
                 )
             }
 
+            // Pantalla Configuración
             Screen.CONFIG -> {
                 ConfigScreen(
                     currentConfig   = gameConfig,
@@ -200,6 +204,7 @@ fun App() {
                 )
             }
 
+            // Pantalla Records
             Screen.RECORDS -> {
                 RecordsScreen(
                     records    = records,
@@ -208,6 +213,7 @@ fun App() {
                 )
             }
 
+            // Pantalla Espera de Partida
             Screen.WAITING_MATCH -> {
                 WaitingMatchScreen(
                     opponentName = opponentName,
@@ -218,6 +224,7 @@ fun App() {
                 )
             }
 
+            // Pantalla Juego
             Screen.GAME_SERVER -> {
                 ServerGameScreen(
                     question      = currentQuestion,
@@ -233,6 +240,7 @@ fun App() {
                 )
             }
 
+            // Pantalla Resultados
             Screen.RESULTS -> {
                 ServerResultsScreen(
                     gameEndData        = gameEndData,

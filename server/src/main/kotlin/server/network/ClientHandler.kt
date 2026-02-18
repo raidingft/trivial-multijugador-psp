@@ -30,10 +30,12 @@ class ClientHandler(
     private var pvpSession: PvPGameSession? = null
     private var isPvPMode = false
 
+    // Método Enviar Mensaje
     fun send(type: String, payload: String) {
         writer.println("$type:$payload")
     }
 
+    // Método Escuchar Cliente
     suspend fun handle() = coroutineScope {
         try {
             println("🔌 Conexión desde ${socket.inetAddress.hostAddress}")
@@ -49,6 +51,7 @@ class ClientHandler(
         }
     }
 
+    // Método Procesar Mensaje
     private suspend fun processLine(line: String) {
         val colonIdx = line.indexOf(':')
         if (colonIdx < 0) return
@@ -136,10 +139,12 @@ class ClientHandler(
         }
     }
 
+    // Método Asignar Sesión PvP
     fun setPvPSession(session: PvPGameSession) {
         pvpSession = session
     }
 
+    // Método Desconectar Cliente
     fun disconnect() {
         try {
             MatchmakingManager.cancelWaiting(this)

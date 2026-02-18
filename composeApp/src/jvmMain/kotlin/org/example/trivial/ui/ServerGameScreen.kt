@@ -58,11 +58,10 @@ fun ServerGameScreen(
     var selectedOption by remember(question) { mutableStateOf<Int?>(null) }
     var timeLeft       by remember(question) { mutableStateOf(question?.timeLimit ?: 30) }
     val showResult = answerResult != null
-    // Parar el timer cuando llegue resultado (cubre el caso del rival en contrarreloj)
     val timerRunning = !showResult && selectedOption == null
     val myScore = scores.find { it.name == playerName }
 
-    // Reproducir sonido cuando llega el resultado
+    // Método Reproducir Sonido al Recibir Resultado
     LaunchedEffect(answerResult) {
         answerResult?.let {
             if (it.correct) {
@@ -73,7 +72,6 @@ fun ServerGameScreen(
         }
     }
 
-    // Animación de racha
     val streakAnimating = remember { mutableStateOf(false) }
     val streakScale by animateFloatAsState(
         targetValue = if (streakAnimating.value) 1.4f else 1f,
@@ -81,6 +79,7 @@ fun ServerGameScreen(
         label = "streak"
     )
 
+    // Método Animar Racha
     LaunchedEffect(myScore?.streak) {
         if ((myScore?.streak ?: 0) >= 5) {
             streakAnimating.value = true
@@ -89,7 +88,7 @@ fun ServerGameScreen(
         }
     }
 
-    // Timer
+    // Método Timer Contrarreloj
     LaunchedEffect(question, timerRunning) {
         if (question != null && gameMode == GameMode.CONTRARRELOJ) {
             if (!timerRunning) return@LaunchedEffect
@@ -121,7 +120,6 @@ fun ServerGameScreen(
                 modifier = Modifier.fillMaxSize().padding(20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // ── Modo de juego ────────────────────────────────────
                 Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
@@ -144,7 +142,6 @@ fun ServerGameScreen(
 
                     Spacer(modifier = Modifier.height(8.dp))
                     
-                    // ── Indicador de turno (solo en modo POR_TURNOS) ────────────
                     if (gameMode == GameMode.POR_TURNOS && question.currentTurnPlayer != null) {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
@@ -172,7 +169,6 @@ fun ServerGameScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                     }
 
-                    // ── Panel de puntuación ────────────────────────────────────
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
@@ -236,7 +232,6 @@ fun ServerGameScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // ── Barra de progreso de preguntas ─────────────────────────
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -264,7 +259,6 @@ fun ServerGameScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // ── Barra de progreso del tiempo ───────────────────────────
                 if (gameMode == GameMode.CONTRARRELOJ) {
                     LinearProgressIndicator(
                         progress = { timeLeft.toFloat() / question.timeLimit },
@@ -279,7 +273,6 @@ fun ServerGameScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                 }
 
-                // ── Categoría con icono ────────────────────────────────────
                 Card(
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.secondaryContainer
@@ -295,7 +288,6 @@ fun ServerGameScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // ── Pregunta ───────────────────────────────────────────────
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     elevation = CardDefaults.cardElevation(6.dp)
@@ -311,7 +303,6 @@ fun ServerGameScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // ── Opciones ───────────────────────────────────────────────
                 question.options.forEachIndexed { index, option ->
                     val bgColor = when {
                         showResult && index == answerResult!!.correctAnswer -> Color(0xFF4CAF50)
@@ -360,7 +351,6 @@ fun ServerGameScreen(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                // ── Feedback resultado ─────────────────────────────────────
                 AnimatedVisibility(
                     visible = showResult,
                     enter = fadeIn() + expandVertically()

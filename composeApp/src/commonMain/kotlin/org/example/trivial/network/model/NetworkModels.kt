@@ -58,7 +58,7 @@ data class QuestionData(
     val timeLimit: Int,
     val questionNumber: Int = 1,
     val totalQuestions: Int = 1,
-    val currentTurnPlayer: String? = null  // Para modo POR_TURNOS
+    val currentTurnPlayer: String? = null
 )
 
 @Serializable
@@ -100,7 +100,6 @@ sealed class ServerEvent {
     data class GameEnd(val data: GameEndData)           : ServerEvent()
     data class Error(val data: ErrorData)               : ServerEvent()
     
-    // Eventos PVP
     data object SearchingMatch : ServerEvent()
     data object Waiting : ServerEvent()
     data class PvPMatched(val opponentName: String, val gameMode: String?) : ServerEvent()

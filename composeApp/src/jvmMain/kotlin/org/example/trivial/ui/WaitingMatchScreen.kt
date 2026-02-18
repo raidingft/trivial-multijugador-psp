@@ -16,6 +16,7 @@ fun WaitingMatchScreen(
     opponentName: String?,
     onCancel: () -> Unit
 ) {
+    // Animación de búsqueda
     val infiniteTransition = rememberInfiniteTransition(label = "rotation")
     val angle by infiniteTransition.animateFloat(
         initialValue = 0f,
@@ -36,6 +37,7 @@ fun WaitingMatchScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            // Pantalla Buscando Oponente / Oponente Encontrado
             if (opponentName == null) {
                 // Buscando oponente
                 Text(

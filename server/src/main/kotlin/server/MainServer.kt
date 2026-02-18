@@ -6,9 +6,7 @@ import server.data.RecordsManager
 import server.network.TrivialServer
 
 fun main() = runBlocking {
-    println("╔══════════════════════════════════════════╗")
-    println("║   🎯 TRIVIAL MULTIJUGADOR - SERVIDOR   ║")
-    println("╚══════════════════════════════════════════╝\n")
+    println("   TRIVIAL MULTIJUGADOR - SERVIDOR   ")
 
     try {
         val configManager = ConfigManager()

@@ -11,6 +11,7 @@ object MatchmakingManager {
     private val waitingPlayers = ConcurrentLinkedQueue<Pair<ClientHandler, CreateTriviaMsg>>()
     private val activeMatches = ConcurrentHashMap<String, PvPGameSession>()
     
+    // Método Buscar Partida
     suspend fun findMatch(client: ClientHandler, config: CreateTriviaMsg): Boolean {
         val opponent = waitingPlayers.poll()
         
@@ -40,10 +41,12 @@ object MatchmakingManager {
         }
     }
     
+    // Método Cancelar Búsqueda
     fun cancelWaiting(client: ClientHandler) {
         waitingPlayers.removeIf { it.first.id == client.id }
     }
     
+    // Método Eliminar Partida
     fun removeMatch(matchId: String) {
         activeMatches.remove(matchId)
     }

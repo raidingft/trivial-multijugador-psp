@@ -8,9 +8,7 @@ import javax.sound.sampled.SourceDataLine
 
 object SoundPlayer {
     
-    /**
-     * Reproduce un archivo MP3 como efecto de sonido
-     */
+
     private fun playSound(resourcePath: String) {
         Thread {
             try {
@@ -21,21 +19,16 @@ object SoundPlayer {
                     player.play()
                     player.close()
                 } else {
-                    // Si no existe el archivo MP3, usar tono de respaldo
                     when {
                         resourcePath.contains("correct") -> playToneFallback(800.0, 100)
                         resourcePath.contains("incorrect") -> playToneFallback(200.0, 300)
                     }
                 }
             } catch (e: Exception) {
-                // Ignorar errores de audio
             }
         }.start()
     }
-    
-    /**
-     * Tono de respaldo si no hay archivos MP3
-     */
+
     private fun playToneFallback(frequency: Double, duration: Int) {
         try {
             val sampleRate = 44100f
@@ -58,11 +51,9 @@ object SoundPlayer {
             line.drain()
             line.close()
         } catch (e: Exception) {
-            // Ignorar errores
         }
     }
     
-    // Sonidos del juego
     fun playCorrect() {
         playSound("/sounds/correct.mp3")
     }

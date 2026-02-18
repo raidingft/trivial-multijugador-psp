@@ -29,6 +29,7 @@ fun MenuScreen(
 ) {
     var showTurnModeWarning by remember { mutableStateOf(false) }
 
+    // Diálogo Aviso Modo Por Turnos no válido en PVE
     if (showTurnModeWarning) {
         Dialog(onDismissRequest = { showTurnModeWarning = false }) {
             Card(
@@ -66,7 +67,7 @@ fun MenuScreen(
             }
         }
     }
-    // Diálogo de desconexión del rival
+    // Diálogo Rival Desconectado
     if (disconnectedMessage != null) {
         Dialog(onDismissRequest = onDisconnectedMessageShown) {
             Card(
@@ -173,6 +174,7 @@ fun MenuScreen(
     }
 }
 
+// Composable Botón de Menú
 @Composable
 private fun MenuButton(
     text: String,

@@ -19,9 +19,9 @@ fun ServerResultsScreen(
     gameEndData:        GameEndData?,
     playerName:         String,
     isPvP:              Boolean = false,
-    playAgainRequest:   String? = null,   // nombre del rival que quiere revancha
-    playAgainRejected:  String? = null,   // mensaje de rechazo
-    opponentWentToMenu: String? = null,   // mensaje de que el rival fue al menú
+    playAgainRequest:   String? = null,
+    playAgainRejected:  String? = null,
+    opponentWentToMenu: String? = null,
     onPlayAgain:        () -> Unit,
     onAcceptPlayAgain:  () -> Unit = {},
     onRejectPlayAgain:  () -> Unit = {},
@@ -31,7 +31,7 @@ fun ServerResultsScreen(
     val myCorrect = gameEndData?.correctAnswers?.get(playerName) ?: 0
     val won       = gameEndData?.winner == playerName
 
-    // ── Diálogo: el rival quiere jugar de nuevo ────────────────────────────
+    // Diálogo Solicitud de Revancha
     if (playAgainRequest != null) {
         Dialog(onDismissRequest = {}) {
             Card(
@@ -70,7 +70,7 @@ fun ServerResultsScreen(
         }
     }
 
-    // ── Diálogo: el rival rechazó la revancha ─────────────────────────────
+    // Diálogo Revancha Rechazada
     if (playAgainRejected != null) {
         Dialog(onDismissRequest = onBackToMenu) {
             Card(
@@ -102,7 +102,7 @@ fun ServerResultsScreen(
         }
     }
 
-    // ── Diálogo: el rival fue al menú ─────────────────────────────────────
+    // Diálogo Rival Fue al Menú
     if (opponentWentToMenu != null) {
         Dialog(onDismissRequest = onBackToMenu) {
             Card(
@@ -134,7 +134,7 @@ fun ServerResultsScreen(
         }
     }
 
-    // ── Pantalla principal de resultados ───────────────────────────────────
+    // Pantalla Principal de Resultados
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -227,6 +227,7 @@ fun ServerResultsScreen(
     }
 }
 
+// Composable Fila de Estadística
 @Composable
 private fun ResultStatRow(label: String, value: String) {
     Row(

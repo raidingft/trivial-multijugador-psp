@@ -35,6 +35,7 @@ class PvPGameSession(
     private var answer2: Int? = null
     private var time2: Long = 0
 
+    // Método Iniciar Partida PvP
     suspend fun start() {
         client1.setPvPSession(this)
         client2.setPvPSession(this)
@@ -55,6 +56,7 @@ class PvPGameSession(
         sendNextQuestion()
     }
 
+    // Método Enviar Pregunta
     private fun sendNextQuestion() {
         if (currentIndex >= questions.size) {
             endGame()
@@ -103,6 +105,7 @@ class PvPGameSession(
         }
     }
 
+    // Método Procesar Respuesta
     suspend fun processAnswer(client: ClientHandler, msg: AnswerMsg) {
         val q = questions.find { it.id == msg.questionId } ?: return
         val elapsed = System.currentTimeMillis() - questionStartTime
@@ -139,6 +142,7 @@ class PvPGameSession(
         }
     }
 
+    // Método Respuesta Contrarreloj y Simultáneo
     private suspend fun processContrarrelojAnswer(q: TriviaQuestion) {
         // El jugador que respondió primero gana; el otro recibe sin puntos
         val player1Answered = answer1 != null
@@ -180,6 +184,7 @@ class PvPGameSession(
         sendNextQuestion()
     }
 
+    // Método Respuesta Por Turnos
     private suspend fun processTurnBasedAnswer(q: TriviaQuestion) {
         val isPlayer1 = currentTurnIsPlayer1
         val answer = if (isPlayer1) answer1 else answer2
@@ -215,6 +220,7 @@ class PvPGameSession(
         sendNextQuestion()
     }
 
+    // Método Respuesta Simultánea (timeout)
     private suspend fun processSimultaneousAnswers(q: TriviaQuestion) {
         if (questionProcessed) return
         questionProcessed = true
@@ -257,7 +263,7 @@ class PvPGameSession(
     }
 
     // Estado para "jugar de nuevo"
-    /** Calcula puntos según las reglas: base por dificultad, x2 si racha>=5, +5 fijo por velocidad */
+    // Método Calcular Puntos
     private fun calcPoints(difficulty: Difficulty, streak: Int, timeElapsed: Long): Int {
         val base = when (difficulty) {
             Difficulty.FACIL   -> 10
@@ -273,6 +279,7 @@ class PvPGameSession(
     private var player1WantsRematch = false
     private var player2WantsRematch = false
 
+    // Método Solicitar Revancha
     fun requestPlayAgain(requester: ClientHandler) {
         val rival = if (requester.id == client1.id) client2 else client1
         rival.send("PLAY_AGAIN_REQUEST", json.encodeToString(
@@ -282,6 +289,7 @@ class PvPGameSession(
         else player2WantsRematch = true
     }
 
+    // Método Responder Revancha
     fun respondPlayAgain(responder: ClientHandler, accepted: Boolean) {
         val requester = if (responder.id == client1.id) client2 else client1
         if (accepted) {
@@ -301,6 +309,7 @@ class PvPGameSession(
         }
     }
 
+    // Método Notificar Rival Fue al Menú
     fun notifyOpponentWentToMenu(client: ClientHandler) {
         val rival = if (client.id == client1.id) client2 else client1
         rival.send("OPPONENT_WENT_TO_MENU", json.encodeToString(
@@ -309,6 +318,7 @@ class PvPGameSession(
         MatchmakingManager.removeMatch(gameId)
     }
 
+    // Método Notificar Rival Desconectado
     fun notifyOpponentDisconnected(disconnectedClient: ClientHandler) {
         val rival = if (disconnectedClient.id == client1.id) client2 else client1
         rival.send("OPPONENT_DISCONNECTED", json.encodeToString(
@@ -318,6 +328,7 @@ class PvPGameSession(
         MatchmakingManager.removeMatch(gameId)
     }
 
+    // Método Finalizar Partida PvP
     private fun endGame() {
         val winner = when {
             score1 > score2 -> client1.playerName

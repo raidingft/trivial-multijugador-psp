@@ -27,11 +27,13 @@ class GameSession(
     private val difficultyStats = mutableMapOf<Difficulty, Pair<Int, Int>>()
     private var totalResponseTime = 0L
 
+    // Método Iniciar Partida
     suspend fun start() {
         println("🎮 Partida iniciada [$gameId] para ${client.playerName} — ${config.mode}, ${questions.size} preguntas")
         sendNextQuestion()
     }
 
+    // Método Enviar Pregunta
     private fun sendNextQuestion() {
         if (currentIndex >= questions.size) {
             endGame()
@@ -54,6 +56,7 @@ class GameSession(
         ))
     }
 
+    // Método Procesar Respuesta
     suspend fun processAnswer(msg: AnswerMsg) {
         val q = questions.find { it.id == msg.questionId } ?: return
         val elapsed = System.currentTimeMillis() - questionStartTime
@@ -121,6 +124,7 @@ class GameSession(
         sendNextQuestion()
     }
 
+    // Método Finalizar Partida
     private fun endGame() {
         val totalAnswered = questions.size
         val won = correct > totalAnswered / 2

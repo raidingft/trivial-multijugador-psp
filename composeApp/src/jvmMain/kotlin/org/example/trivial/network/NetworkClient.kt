@@ -39,6 +39,7 @@ actual class NetworkClient {
     private val _messages = MutableSharedFlow<ServerEvent>(extraBufferCapacity = 32)
     actual val messages: SharedFlow<ServerEvent> = _messages
 
+    // Método Conectar al Servidor
     actual suspend fun connect(host: String, port: Int, playerName: String): Boolean =
         withContext(Dispatchers.IO) {
             try {
@@ -72,6 +73,7 @@ actual class NetworkClient {
             }
         }
 
+    // Método Reconectar
     private fun scheduleReconnect() {
         reconnectJob?.cancel()
         reconnectJob = CoroutineScope(Dispatchers.IO).launch {
@@ -84,6 +86,7 @@ actual class NetworkClient {
         }
     }
 
+    // Método Escuchar Servidor
     private suspend fun listen() {
         try {
             while (socket?.isConnected == true && !socket!!.isClosed) {
@@ -104,6 +107,7 @@ actual class NetworkClient {
         }
     }
 
+    // Método Manejar Desconexión
     private fun handleDisconnection() {
         _connected.value = false
         if (shouldReconnect && reconnectAttempts < maxReconnectAttempts) {
@@ -111,6 +115,7 @@ actual class NetworkClient {
         }
     }
 
+    // Método Parsear Mensaje del Servidor
     private suspend fun parseServerMessage(line: String) {
         val idx = line.indexOf(':')
         if (idx < 0) return
@@ -163,44 +168,53 @@ actual class NetworkClient {
         }
     }
 
+    // Método Iniciar Partida PVE
     actual fun startGame(questions: Int, categories: List<String>, difficulty: String, timeLimit: Int) {
         send("CREATE_TRIVIA", json.encodeToString(
             CreateTriviaMsg("PVE", questions, categories, difficulty, timeLimit)
         ))
     }
 
+    // Método Iniciar Partida PvP
     fun startPvPGame(questions: Int, categories: List<String>, difficulty: String, timeLimit: Int, mode: String) {
         send("START_PVP_MATCHMAKING", json.encodeToString(
             CreateTriviaMsg(mode, questions, categories, difficulty, timeLimit)
         ))
     }
 
+    // Método Cancelar Búsqueda
     fun cancelMatchmaking() {
         send("CANCEL_MATCHMAKING", "{}")
     }
 
+    // Método Solicitar Revancha
     fun requestPlayAgain() {
         send("PLAY_AGAIN_REQUEST", "{}")
     }
 
+    // Método Responder Revancha
     fun respondPlayAgain(accepted: Boolean) {
         send("PLAY_AGAIN_RESPONSE", json.encodeToString(mapOf("accepted" to accepted)))
     }
 
+    // Método Notificar Ir al Menú
     fun notifyWentToMenu() {
         send("WENT_TO_MENU", "{}")
     }
 
+    // Método Enviar Respuesta
     actual fun sendAnswer(questionId: Int, selectedOption: Int, timeElapsed: Long) {
         send("ANSWER", json.encodeToString(
             AnswerMsg(questionId, selectedOption, timeElapsed)
         ))
     }
 
+    // Método Pedir Records
     actual fun requestRecords() {
         send("GET_RECORDS", "{}")
     }
 
+    // Método Desconectar
     actual fun disconnect() {
         shouldReconnect = false
         reconnectJob?.cancel()
@@ -210,6 +224,7 @@ actual class NetworkClient {
         _connected.value = false
     }
 
+    // Método Enviar Mensaje
     private fun send(type: String, payload: String) {
         try {
             writer?.println("$type:$payload")

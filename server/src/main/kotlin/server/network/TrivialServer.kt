@@ -14,6 +14,7 @@ class TrivialServer(
     private val clients = ConcurrentHashMap<String, ClientHandler>()
     private lateinit var serverSocket: ServerSocket
 
+    // Método Iniciar Servidor
     suspend fun start() = coroutineScope {
         serverSocket = ServerSocket(
             config.port, 50,
@@ -42,11 +43,13 @@ class TrivialServer(
         }
     }
 
+    // Método Eliminar Cliente
     fun removeClient(handler: ClientHandler) {
         clients.remove(handler.id)
         println("📊 Clientes conectados: ${clients.size}/${config.maxClients}")
     }
 
+    // Método Parar Servidor
     fun stop() {
         println("\n🛑 Cerrando servidor...")
         clients.values.forEach { it.disconnect() }
