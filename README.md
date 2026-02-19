@@ -703,12 +703,6 @@ state = WindowState(width = 1400.dp, height = 900.dp)
 
 ---
 
-## Licencia
-
-Este proyecto fue desarrollado como parte de un proyecto educativo de Programación de Servicios y Procesos.
-
----
-
 ## Autores
 
 - Desarrollado por: [Saúl Fernández Torres]
