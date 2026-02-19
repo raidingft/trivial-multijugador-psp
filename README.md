@@ -4,22 +4,21 @@ Juego de preguntas y respuestas tipo Trivial Pursuit desarrollado con Kotlin Mul
 
 ---
 
-## 📋 Tabla de Contenidos
+## Tabla de Contenidos
 
 1. [Características](#-características)
-2. [Requisitos del Sistema](#-requisitos-del-sistema)
-3. [Instalación y Compilación](#-instalación-y-compilación)
-4. [Ejecución](#-ejecución)
-5. [Arquitectura del Sistema](#-arquitectura-del-sistema)
-6. [Protocolo de Comunicación](#-protocolo-de-comunicación)
-7. [Manual de Usuario](#-manual-de-usuario)
-8. [Configuración](#-configuración)
-9. [Sistema de Puntuación](#-sistema-de-puntuación)
-10. [Tecnologías Utilizadas](#-tecnologías-utilizadas)
+2. [Instalación y Compilación](#-instalación-y-compilación)
+3. [Ejecución](#-ejecución)
+4. [Arquitectura del Sistema](#-arquitectura-del-sistema)
+5. [Protocolo de Comunicación](#-protocolo-de-comunicación)
+6. [Manual de Usuario](#-manual-de-usuario)
+7. [Configuración](#-configuración)
+8. [Sistema de Puntuación](#-sistema-de-puntuación)
+9. [Tecnologías Utilizadas](#-tecnologías-utilizadas)
 
 ---
 
-## ✨ Características
+## Características
 
 ### Modos de Juego
 - **PVE (Player vs Environment)**: Juega solo contra el servidor
@@ -67,21 +66,7 @@ Juego de preguntas y respuestas tipo Trivial Pursuit desarrollado con Kotlin Mul
 
 ---
 
-## 💻 Requisitos del Sistema
-
-### Software Necesario
-- **Java Development Kit (JDK)**: 17 o superior
-- **Gradle**: 8.0+ (incluido con Gradle Wrapper)
-- **Sistema Operativo**: Windows, macOS o Linux
-
-### Hardware Mínimo
-- **RAM**: 4 GB
-- **Espacio en disco**: 500 MB
-- **Conexión de red**: Para modo multijugador
-
----
-
-## 📦 Instalación y Compilación
+## Instalación y Compilación
 
 ### 1. Clonar el Repositorio
 ```bash
@@ -91,11 +76,8 @@ cd TrivialMultijugador
 
 ### 2. Compilar el Proyecto
 ```bash
-# En Windows
 gradlew.bat build
 
-# En Linux/macOS
-./gradlew build
 ```
 
 ### 3. Verificar la Compilación
@@ -106,71 +88,41 @@ BUILD SUCCESSFUL in Xs
 
 ---
 
-## 🚀 Ejecución
+## Ejecución
 
-### Modo Rápido: Servidor + Cliente en una Máquina
+### Todo esto en la terminal de intellij
 
 #### Terminal 1: Iniciar el Servidor
 ```bash
-# Windows
-gradlew.bat :server:run
-
-# Linux/macOS
 ./gradlew :server:run
 ```
 
 **Salida esperada:**
 ```
-╔══════════════════════════════════════════╗
-║   🎯 TRIVIAL MULTIJUGADOR - SERVIDOR   ║
-╚══════════════════════════════════════════╝
+    TRIVIAL MULTIJUGADOR - SERVIDOR   
 
-✅ Configuración cargada:
+
+   Configuración cargada:
    Host: localhost
    Puerto: 5678
    Máximo de clientes: 10
-🚀 Servidor iniciado en localhost:5678
+   Servidor iniciado en localhost:5678
 ```
 
 #### Terminal 2: Iniciar Cliente (Jugador 1)
 ```bash
-# Windows
-gradlew.bat :composeApp:run
 
-# Linux/macOS
 ./gradlew :composeApp:run
 ```
 
 #### Terminal 3 (Opcional): Iniciar Cliente (Jugador 2) - Para PVP
 ```bash
-# Ejecutar el mismo comando en otra terminal
-gradlew.bat :composeApp:run
-```
-
-### Modo Producción: Generar Ejecutables
-
-#### Generar Ejecutable del Servidor
-```bash
-./gradlew :server:jar
-
-# El JAR se genera en:
-# server/build/libs/server.jar
-
-# Ejecutar:
-java -jar server/build/libs/server.jar
-```
-
-#### Generar Aplicación de Escritorio
-```bash
-./gradlew :composeApp:packageDistributionForCurrentOS
-
-# El ejecutable se genera en:
-# composeApp/build/compose/binaries/main/
+./gradlew :composeApp:run
 ```
 
 ---
 
-## 🏗️ Arquitectura del Sistema
+## Arquitectura del Sistema
 
 ### Diagrama de Arquitectura
 
@@ -759,27 +711,6 @@ Este proyecto fue desarrollado como parte de un proyecto educativo de Programaci
 
 ## Autores
 
-- Desarrollado por: [Tu Nombre]
+- Desarrollado por: [Saúl Fernández Torres]
 - Curso: Programación de Servicios y Procesos
 - Año: 2024-2025
-
----
-
-## Agradecimientos
-
-- Banco de preguntas inspirado en Open Trivia Database
-- Iconos de categorías usando emojis Unicode
-- Diseño basado en el juego clásico Trivial Pursuit
-
----
-
-## Soporte
-
-Para reportar bugs o solicitar features:
-1. Abre un issue en GitHub
-2. Contacta al equipo de desarrollo
-3. Revisa la documentación del protocolo
-
----
-
-**¡Disfruta jugando al Trivial Multijugador!** 🎯🎮
