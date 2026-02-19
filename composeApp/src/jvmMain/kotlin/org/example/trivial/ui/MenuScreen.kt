@@ -29,7 +29,7 @@ fun MenuScreen(
 ) {
     var showTurnModeWarning by remember { mutableStateOf(false) }
 
-    // Diálogo Aviso Modo Por Turnos no válido en PVE
+    // Dialogo aviso de modo por turnos PVE
     if (showTurnModeWarning) {
         Dialog(onDismissRequest = { showTurnModeWarning = false }) {
             Card(

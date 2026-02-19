@@ -37,9 +37,8 @@ fun WaitingMatchScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Pantalla Buscando Oponente / Oponente Encontrado
+            // Pantalla Buscando Oponente y Oponente Encontrado
             if (opponentName == null) {
-                // Buscando oponente
                 Text(
                     text = "🔍",
                     fontSize = 72.sp,

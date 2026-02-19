@@ -19,10 +19,10 @@ object QuestionBank {
                 ?: error("No se encontró questions.json")
 
             val file = json.decodeFromString<QuestionsFile>(text)
-            println("✅ Preguntas cargadas: ${file.questions.size}")
+            println("Preguntas cargadas: ${file.questions.size}")
             file.questions
         } catch (e: Exception) {
-            println("❌ Error al cargar preguntas: ${e.message}")
+            println("Error al cargar preguntas: ${e.message}")
             emptyList()
         }
     }

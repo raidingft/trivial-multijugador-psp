@@ -40,8 +40,8 @@ class PvPGameSession(
         client1.setPvPSession(this)
         client2.setPvPSession(this)
         
-        println("🆚 PVP [$gameId]: ${client1.playerName} vs ${client2.playerName}")
-        println("⚙️ ${config.mode}, ${config.difficulty}, ${questions.size} preguntas")
+        println("PVP [$gameId]: ${client1.playerName} vs ${client2.playerName}")
+        println("${config.mode}, ${config.difficulty}, ${questions.size} preguntas")
         
         client1.send("PVP_MATCHED", json.encodeToString(mapOf(
             "opponent" to client2.playerName,
@@ -119,11 +119,11 @@ class PvPGameSession(
         if (questionProcessed) return
         
         if (client.id == client1.id) {
-            if (answer1 != null) return  // Ya respondió
+            if (answer1 != null) return
             answer1 = msg.selectedOption
             time1 = elapsed
         } else {
-            if (answer2 != null) return  // Ya respondió
+            if (answer2 != null) return
             answer2 = msg.selectedOption
             time2 = elapsed
         }
@@ -134,7 +134,7 @@ class PvPGameSession(
         }
         
         if (config.mode == "CONTRARRELOJ" || config.mode == "SIMULTANEO") {
-            // El primero en responder gana la pregunta
+
             questionProcessed = true
             timeoutJob?.cancel()
             processContrarrelojAnswer(q)
@@ -144,7 +144,7 @@ class PvPGameSession(
 
     // Método Respuesta Contrarreloj y Simultáneo
     private suspend fun processContrarrelojAnswer(q: TriviaQuestion) {
-        // El jugador que respondió primero gana; el otro recibe sin puntos
+
         val player1Answered = answer1 != null
         val player2Answered = answer2 != null
         
@@ -293,11 +293,11 @@ class PvPGameSession(
     fun respondPlayAgain(responder: ClientHandler, accepted: Boolean) {
         val requester = if (responder.id == client1.id) client2 else client1
         if (accepted) {
-            // Ambos quieren jugar — lanzar nueva sesión con misma config
+
             requester.send("PLAY_AGAIN_ACCEPTED", "{}")
             responder.send("PLAY_AGAIN_ACCEPTED", "{}")
             MatchmakingManager.removeMatch(gameId)
-            // Crear nueva sesión directamente
+
             val newSession = PvPGameSession(client1, client2, config)
             kotlinx.coroutines.GlobalScope.launch { newSession.start() }
         } else {

@@ -18,7 +18,7 @@ fun main() = runBlocking {
         server.start()
 
     } catch (e: Exception) {
-        println("❌ Error fatal: ${e.message}")
+        println("Error fatal: ${e.message}")
         e.printStackTrace()
     }
 }

@@ -57,7 +57,7 @@ data class QuestionMsg(
     val timeLimit: Int,
     val questionNumber: Int,
     val totalQuestions: Int,
-    val currentTurnPlayer: String? = null  // Para modo POR_TURNOS
+    val currentTurnPlayer: String? = null
 )
 
 @Serializable

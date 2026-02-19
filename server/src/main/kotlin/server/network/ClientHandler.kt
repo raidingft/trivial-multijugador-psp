@@ -63,7 +63,7 @@ class ClientHandler(
             "CONNECT" -> {
                 val msg = json.decodeFromString<ConnectMsg>(payload)
                 playerName = msg.playerName
-                println("👤 Jugador conectado: $playerName")
+                println("Jugador conectado: $playerName")
 
                 send("WELCOME", json.encodeToString(WelcomeMsg("Bienvenido, $playerName!", id)))
                 send("RECORDS", json.encodeToString(records.getAll()))
@@ -149,7 +149,7 @@ class ClientHandler(
         try {
             MatchmakingManager.cancelWaiting(this)
             pvpSession?.notifyOpponentDisconnected(this)
-            println("👋 Desconectado: $playerName")
+            println("Desconectado: $playerName")
             socket.close()
             server.removeClient(this)
         } catch (_: Exception) {}

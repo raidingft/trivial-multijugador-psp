@@ -54,7 +54,7 @@ fun App() {
                 is ServerEvent.PvPMatched -> {
                     isPvPGame = true
                     opponentName = event.opponentName
-                    // Actualizar modo de juego si viene del servidor (es el del host)
+
                     event.gameMode?.let { mode ->
                         gameConfig = gameConfig.copy(
                             gameMode = when (mode) {
@@ -105,7 +105,7 @@ fun App() {
                     playAgainRequest = event.playerName
                 }
                 is ServerEvent.PlayAgainAccepted -> {
-                    // Reiniciar estado y empezar nueva partida
+
                     currentQuestion = null
                     answerResult    = null
                     scores          = emptyList()

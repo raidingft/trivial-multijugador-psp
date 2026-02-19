@@ -30,6 +30,6 @@ class ConfigManager(private val configFile: String = "server.properties") {
             server.port=5678
             max.clients=10
         """.trimIndent())
-        println("✅ Archivo de configuración creado: ${file.absolutePath}")
+        println("Archivo de configuración creado: ${file.absolutePath}")
     }
 }

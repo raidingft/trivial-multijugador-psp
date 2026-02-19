@@ -15,13 +15,13 @@ class RecordsManager(private val filePath: String = "records.json") {
         if (!file.exists()) {
             val empty = RecordsFile()
             file.writeText(json.encodeToString(empty))
-            println("📄 records.json creado en ${file.absolutePath}")
+            println("records.json creado en ${file.absolutePath}")
             return empty
         }
         return try {
             json.decodeFromString<RecordsFile>(file.readText())
         } catch (e: Exception) {
-            println("⚠️ Error al leer records.json: ${e.message}")
+            println("Error al leer records.json: ${e.message}")
             RecordsFile()
         }
     }
@@ -78,6 +78,6 @@ class RecordsManager(private val filePath: String = "records.json") {
             lastPlayed        = System.currentTimeMillis()
         )
         save()
-        println("💾 Record actualizado: $playerName → score=${data.players[playerName]?.bestScore}")
+        println("Record actualizado: $playerName → score=${data.players[playerName]?.bestScore}")
     }
 }

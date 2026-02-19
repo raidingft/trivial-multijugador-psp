@@ -52,19 +52,19 @@
         "f": {
             "playerName": "f",
             "bestScore": 165,
-            "gamesWon": 2,
-            "gamesLost": 11,
-            "maxStreak": 1,
-            "totalCorrect": 46,
-            "totalAnswered": 123,
+            "gamesWon": 3,
+            "gamesLost": 12,
+            "maxStreak": 2,
+            "totalCorrect": 52,
+            "totalAnswered": 136,
             "categoryStats": {
                 "HISTORIA": {
-                    "correct": 6,
-                    "total": 17
+                    "correct": 7,
+                    "total": 19
                 },
                 "CIENCIA_NATURALEZA": {
-                    "correct": 4,
-                    "total": 12
+                    "correct": 5,
+                    "total": 13
                 },
                 "CONOCIMIENTO_GENERAL": {
                     "correct": 3,
@@ -72,19 +72,19 @@
                 },
                 "ARTE_LITERATURA": {
                     "correct": 5,
-                    "total": 12
+                    "total": 13
                 },
                 "ENTRETENIMIENTO": {
-                    "correct": 8,
-                    "total": 15
-                },
-                "DEPORTES": {
-                    "correct": 6,
+                    "correct": 9,
                     "total": 18
                 },
+                "DEPORTES": {
+                    "correct": 7,
+                    "total": 20
+                },
                 "GEOGRAFIA": {
-                    "correct": 5,
-                    "total": 12
+                    "correct": 7,
+                    "total": 16
                 },
                 "TECNOLOGIA": {
                     "correct": 4,
@@ -93,19 +93,42 @@
             },
             "difficultyStats": {
                 "MEDIA": {
-                    "correct": 30,
-                    "total": 96
+                    "correct": 36,
+                    "total": 106
                 },
                 "FACIL": {
                     "correct": 11,
-                    "total": 15
+                    "total": 18
                 },
                 "DIFICIL": {
                     "total": 2
                 }
             },
-            "totalResponseTime": 132284,
-            "lastPlayed": 1771433112432
+            "totalResponseTime": 154536,
+            "lastPlayed": 1771501378098
+        },
+        "s": {
+            "playerName": "s",
+            "gamesLost": 1,
+            "totalAnswered": 3,
+            "categoryStats": {
+                "CIENCIA_NATURALEZA": {
+                    "total": 1
+                },
+                "TECNOLOGIA": {
+                    "total": 1
+                },
+                "GEOGRAFIA": {
+                    "total": 1
+                }
+            },
+            "difficultyStats": {
+                "DIFICIL": {
+                    "total": 3
+                }
+            },
+            "totalResponseTime": 1721,
+            "lastPlayed": 1771503754595
         }
     }
 }

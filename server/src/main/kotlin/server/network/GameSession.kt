@@ -22,14 +22,13 @@ class GameSession(
     private var correct = 0
     private var questionStartTime = 0L
     
-    // Estadísticas detalladas
     private val categoryStats = mutableMapOf<Category, Pair<Int, Int>>() // (correct, total)
     private val difficultyStats = mutableMapOf<Difficulty, Pair<Int, Int>>()
     private var totalResponseTime = 0L
 
     // Método Iniciar Partida
     suspend fun start() {
-        println("🎮 Partida iniciada [$gameId] para ${client.playerName} — ${config.mode}, ${questions.size} preguntas")
+        println("Partida iniciada [$gameId] para ${client.playerName} — ${config.mode}, ${questions.size} preguntas")
         sendNextQuestion()
     }
 
@@ -62,10 +61,8 @@ class GameSession(
         val elapsed = System.currentTimeMillis() - questionStartTime
         val isCorrect = msg.selectedOption == q.correctAnswer
         
-        // Trackear tiempo
         totalResponseTime += elapsed
 
-        // Trackear categoría
         val catStats = categoryStats.getOrDefault(q.category, Pair(0, 0))
         categoryStats[q.category] = if (isCorrect) {
             Pair(catStats.first + 1, catStats.second + 1)
@@ -73,7 +70,6 @@ class GameSession(
             Pair(catStats.first, catStats.second + 1)
         }
         
-        // Trackear dificultad
         val diffStats = difficultyStats.getOrDefault(q.difficulty, Pair(0, 0))
         difficultyStats[q.difficulty] = if (isCorrect) {
             Pair(diffStats.first + 1, diffStats.second + 1)
@@ -86,16 +82,15 @@ class GameSession(
             correct++
             streak++
 
-            // Base según dificultad: x1 FACIL/MIXTA, x1.5 MEDIA, x2 DIFICIL
             val base = when (q.difficulty) {
                 Difficulty.FACIL   -> 10
                 Difficulty.MEDIA   -> 15
                 Difficulty.DIFICIL -> 20
                 Difficulty.MIXTA   -> 10
             }
-            // Racha x2 sobre la puntuación base
+
             points = if (streak >= 5) base * 2 else base
-            // Bonus velocidad: fijo +5, no se multiplica por racha
+
             if (msg.timeElapsed < 5_000) points += 5
 
             score += points

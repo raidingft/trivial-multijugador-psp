@@ -17,8 +17,8 @@ object MatchmakingManager {
         
         return if (opponent != null) {
             val matchId = "${client.id}-${opponent.first.id}"
-            println("🎮 Emparejando: ${opponent.first.playerName} (host) vs ${client.playerName}")
-            println("⚙️ Config host: ${opponent.second.mode}, ${opponent.second.difficulty}")
+            println("Emparejando: ${opponent.first.playerName} (host) vs ${client.playerName}")
+            println("Config host: ${opponent.second.mode}, ${opponent.second.difficulty}")
             
             val session = PvPGameSession(
                 client1 = opponent.first,
@@ -28,14 +28,13 @@ object MatchmakingManager {
             
             activeMatches[matchId] = session
             
-            // Lanzar la sesión en una coroutine separada
             CoroutineScope(Dispatchers.IO).launch {
                 session.start()
             }
             
             true
         } else {
-            println("⏳ ${client.playerName} esperando oponente...")
+            println(" ${client.playerName} esperando oponente...")
             waitingPlayers.offer(Pair(client, config))
             false
         }
